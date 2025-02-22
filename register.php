@@ -59,7 +59,7 @@ if (isset($_POST['submit'])) {
             $result = mysqli_query($koneksi, $query);
 
             if ($result) {
-                $_SESSION["user_id"] = mysqli_insert_id($koneksi);
+                $_SESSION["id_user"] = mysqli_insert_id($koneksi);
                 $_SESSION["username"] = $username;
                 $_SESSION["role"] = $role;
                 redirect_to("dashboard.php");

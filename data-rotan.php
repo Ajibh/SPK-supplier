@@ -1,7 +1,14 @@
-<?php require_once('includes/init.php'); ?>
-<?php cek_login($role = array(3)); ?>
+<?php 
+require_once('includes/init.php'); 
+cek_login($role = array(3)); 
+if (!isset($_SESSION['id_user'])) {
+    echo "Anda belum login!";
+    exit;
+}
 
-<?php
+// Ambil id_supplier dari sesi login
+$id_supplier = $_SESSION['id_supplier'];
+
 $page = "data_rotan";
 require_once('template/header.php');
 ?>
@@ -34,31 +41,29 @@ require_once('template/header.php');
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
+                <?php
+                    // Query dengan filter id_supplier dari session
                     $no = 0;
-                    $query = mysqli_query($koneksi, "SELECT * FROM rotan");
+                    $query = mysqli_query($koneksi, "SELECT * FROM data_rotan WHERE id_supplier = '$id_supplier'");
 
                     while ($data = mysqli_fetch_array($query)):
                         $no++;
-                        ?>
+                    ?>
                         <tr align="center">
                             <td><?php echo $no; ?></td>
                             <td align="left"> <?php echo $data['jenis_rotan']; ?> </td>
                             <td>
                                 <select name="kualitas[]" class="form-control" required>
                                     <option value="">--Pilih--</option>
-                                    <option value="AB" <?php if ($data['kualitas'] == 'AB')
-                                        echo 'selected'; ?>>AB</option>
-                                    <option value="BC" <?php if ($data['kualitas'] == 'BC')
-                                        echo 'selected'; ?>>BC</option>
-                                    <option value="CD" <?php if ($data['kualitas'] == 'CD')
-                                        echo 'selected'; ?>>CD</option>
+                                    <option value="AB" <?php if ($data['kualitas'] == 'AB') echo 'selected'; ?>>AB</option>
+                                    <option value="BC" <?php if ($data['kualitas'] == 'BC') echo 'selected'; ?>>BC</option>
+                                    <option value="CD" <?php if ($data['kualitas'] == 'CD') echo 'selected'; ?>>CD</option>
                                 </select>
                             </td>
                             <td><input type="number" name="harga[]" class="form-control"
                                     value="<?php echo $data['harga']; ?>" required></td>
-                            <td><input type="number" name="stok[]" class="form-control" value="<?php echo $data['stok']; ?>"
-                                    required></td>
+                            <td><input type="number" name="stok[]" class="form-control"
+                                    value="<?php echo $data['stok']; ?>" required></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>

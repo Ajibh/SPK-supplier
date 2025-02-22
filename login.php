@@ -2,7 +2,7 @@
 require_once('includes/init.php');
 
 // Cek apakah pengguna sudah login
-if (isset($_SESSION["user_id"])) {
+if (isset($_SESSION["id_user"])) {
     // Jika sudah login, arahkan ke halaman dashboard atau halaman lain yang sesuai
     redirect_to("dashboard.php");
 }
@@ -29,7 +29,7 @@ if (isset($_POST['submit'])):
         if ($cek > 0) {
             $hashed_password = sha1($password);
             if ($data['password'] === $hashed_password) {
-                $_SESSION["user_id"] = $data["id_user"];
+                $_SESSION["id_user"] = $data["id_user"];
                 $_SESSION["username"] = $data["username"];
                 $_SESSION["role"] = $data["role"];
                 redirect_to("dashboard.php");

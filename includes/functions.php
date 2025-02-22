@@ -9,7 +9,7 @@ function redirect_to($url = '')
 function cek_login($role = array())
 {
 
-	if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && in_array($_SESSION['role'], $role)) {
+	if (isset($_SESSION['id_user']) && isset($_SESSION['role']) && in_array($_SESSION['role'], $role)) {
 		// do nothing
 	} else {
 		redirect_to("login.php");
@@ -18,7 +18,7 @@ function cek_login($role = array())
 
 function get_role()
 {
-	if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+	if (isset($_SESSION['id_user']) && isset($_SESSION['role'])) {
 		if ($_SESSION['role'] == '1') {
 			return 'admin';
 		} elseif ($_SESSION['role'] == '2') {

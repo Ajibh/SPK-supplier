@@ -47,13 +47,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		<h5 class="card-title">Form Tambah Data Rotan</h5>
 		<form action="proses_input_rotan.php" method="POST">
 			<div class="mb-3">
-				<label for="jenis_rotan" class="form-label">Jenis Rotan</label>
-				<input type="text" class="form-control" id="jenis_rotan" name="jenis_rotan" required>
+				<label for="id_jenis" class="form-label">Jenis Rotan</label>
+				<select class="form-control" id="id_jenis" name="id_jenis" required>
+					<option value="">Pilih Jenis Rotan</option>
+					<?php
+					$query_jenis = "SELECT id_jenis, nama_jenis FROM jenis_rotan";
+					$result_jenis = mysqli_query($koneksi, $query_jenis);
+					while ($row = mysqli_fetch_assoc($result_jenis)) {
+						echo '<option value="' . $row['id_jenis'] . '">' . $row['nama_jenis'] . '</option>';
+					}
+					?>
+				</select>
 			</div>
-
 			<div class="mb-3">
-				<label for="ukuran" class="form-label">Ukuran</label>
-				<input type="text" class="form-control" id="ukuran" name="ukuran" placeholder="contoh: 10-12" required>
+				<label for="id_ukuran" class="form-label">Ukuran</label>
+				<select class="form-control" id="id_ukuran" name="id_ukuran" required>
+					<option value="">Pilih Ukuran</option>
+					<?php
+					$query_ukuran = "SELECT id_ukuran, ukuran FROM ukuran_rotan";
+					$result_ukuran = mysqli_query($koneksi, $query_ukuran);
+					while ($row = mysqli_fetch_assoc($result_ukuran)) {
+						echo '<option value="' . $row['id_ukuran'] . '">' . $row['ukuran'] . '</option>';
+					}
+					?>
+				</select>
 			</div>
 
 			<div class="mb-3">
@@ -98,7 +115,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			<button type="submit" class="btn btn-primary mt-3 btn-sm">Simpan Data Rotan</button>
 		</form>
 	</div>
+</div><!-- Modal Hasil Input -->
+<div class="modal fade" id="modalHasil" tabindex="-1" aria-labelledby="modalHasilLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalHasilLabel">Hasil Input Data Rotan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Isi pesan hasil input akan ditampilkan di sini -->
+                <p id="pesanHasil"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+// Cek apakah ada pesan hasil input
+<?php if (isset($result)) : ?>
+    var pesan = "";
+    <?php if ($result) : ?>
+        pesan = "Data rotan berhasil ditambahkan.";
+    <?php else : ?>
+        pesan = "Gagal menambahkan data rotan.";
+    <?php endif; ?>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('pesanHasil').innerText = pesan;
+        var modalHasil = new bootstrap.Modal(document.getElementById('modalHasil'));
+        modalHasil.show();
+    });
+<?php endif; ?>
+</script>
+
 
 
 <?php require_once('template/footer.php'); ?>

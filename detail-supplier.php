@@ -8,12 +8,6 @@ require_once('template/header.php');
 $id_supplier = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $supplier = mysqli_query($koneksi, "SELECT * FROM supplier WHERE id_supplier = '$id_supplier'");
 $data_supplier = mysqli_fetch_assoc($supplier);
-
-if (!$data_supplier) {
-    echo '<div class="alert alert-danger">Data supplier tidak ditemukan!</div>';
-    require_once('template/footer.php');
-    exit;
-}
 ?>
 
 <div class="d-sm-flex align-items-center justify-content-between">
@@ -22,7 +16,7 @@ if (!$data_supplier) {
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="index.php"><i class="bi bi-house-door"></i></a></li>
-                <li class="breadcrumb-item"><a href="data-supplier.php">Data Supplier</a></li>
+                <li class="breadcrumb-item"><a href="list-alternatif.php">Data Supplier</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Detail Supplier</li>
             </ol>
         </nav>
@@ -58,8 +52,10 @@ if (!$data_supplier) {
                     <tr align="center">
                         <th>No</th>
                         <th>Jenis Rotan</th>
-                        <th>Kualitas</th>
-                        <th>Harga per Kg</th>
+                        <th>Ukuran</th>
+                        <th>Harga AB</th>
+                        <th>Harga BC</th>
+                        <th>Harga CD</th>
                         <th>Ketersediaan Stok</th>
                         <th>Minimal Pemesanan</th>
                     </tr>
@@ -67,23 +63,57 @@ if (!$data_supplier) {
                 <tbody>
                     <?php
                     $no = 0;
-                    $query = mysqli_query($koneksi, "SELECT * FROM rotan WHERE id_supplier = '$id_supplier'");
-                    while ($data = mysqli_fetch_array($query)):
-                        $no++;
+                    $query = mysqli_query($koneksi, "
+        SELECT 
+            data_rotan.id_rotan,
+            jenis_rotan.nama_jenis AS jenis_rotan,
+            ukuran_rotan.ukuran,
+            data_rotan.harga_ab,
+            data_rotan.harga_bc,
+            data_rotan.harga_cd,
+            data_rotan.stok,
+            data_rotan.minimal_pembelian
+        FROM 
+            data_rotan
+        JOIN 
+            jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
+        JOIN 
+            ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran
+        WHERE 
+            data_rotan.id_supplier = '$id_supplier'
+    ");
+
+                    if (mysqli_num_rows($query) > 0):
+                        while ($data = mysqli_fetch_array($query)):
+                            $no++;
+                            ?>
+                            <tr align="center">
+                                <td><?php echo $no; ?></td>
+                                <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
+                                <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
+                                <td><?php echo htmlspecialchars(number_format($data['harga_ab'], 0, ',', '.')); ?> IDR</td>
+                                <td><?php echo htmlspecialchars(number_format($data['harga_bc'], 0, ',', '.')); ?> IDR</td>
+                                <td><?php echo htmlspecialchars(number_format($data['harga_cd'], 0, ',', '.')); ?> IDR</td>
+                                <td><?php echo htmlspecialchars($data['stok']); ?></td>
+                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?></td>
+                            </tr>
+                        <?php
+                        endwhile;
+                    else:
                         ?>
-                        <tr align="center">
-                            <td><?php echo $no; ?></td>
-                            <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
-                            <td><?php echo htmlspecialchars(number_format($data['harga'], 0, ',', '.')); ?> IDR</td>
-                            <td><?php echo htmlspecialchars($data['stok']); ?> kg</td>
+                        <tr>
+                            <td colspan="8" align="center">NO-DATA</td>
                         </tr>
-                    <?php endwhile; ?>
+                    <?php
+                    endif;
+                    ?>
                 </tbody>
+
             </table>
         </div>
     </div>
 </div>
 
-<a href="data-supplier.php" class="btn btn-primary mt-3">Kembali</a>
+<a href="data-supplier.php" class="btn btn-primary btn-sm mt-2">Kembali</a>
 
 <?php require_once('template/footer.php'); ?>

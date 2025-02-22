@@ -72,6 +72,11 @@ require_once('template/header.php');
 					<textarea name="alamat" required placeholder="Alamat Lokasi Supplier"
 						class="form-control"><?php echo htmlspecialchars($alamat); ?></textarea>
 				</div>
+				<div class="form-group col-md-12 mt-2">
+					<label class="font-weight-bold">Kontak</label>
+					<input name="alamat" required placeholder="No. Telepon/Wa"
+						class="form-control"><?php echo htmlspecialchars($alamat); ?></input>
+				</div>
 			</div>
 		</div>
 		<div class="card-footer text-right">

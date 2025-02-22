@@ -10,7 +10,7 @@ if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
 	$ada_error = false;
 	$result = '';
 
-	$id_user = $_SESSION["user_id"];
+	$id_user = $_SESSION["id_user"];
 
 	if (isset($_POST['submit'])):
 		$password = $_POST['password'];

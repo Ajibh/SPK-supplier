@@ -64,8 +64,11 @@ endif;
 						?>
 						<tr align="center">
 							<td><?php echo $no; ?></td>
-							<td align="left"><?php echo htmlspecialchars($data['nama']); ?></td>
-							<td align="left"><?php echo htmlspecialchars($data['alamat']); ?></td>
+							<td align="left">
+								<?php echo !empty($data['nama']) ? htmlspecialchars($data['nama']) : 'Tidak ada'; ?></td>
+							<td align="left">
+								<?php echo !empty($data['alamat']) ? htmlspecialchars($data['alamat']) : 'Tidak ada'; ?>
+							</td>
 							<td>
 								<div>
 									<a data-toggle="tooltip" data-placement="bottom" title="Lihat Detail"

@@ -2,7 +2,7 @@
 require_once('includes/init.php');
 
 // Cek apakah pengguna sudah login
-if (isset($_SESSION["user_id"])) {
+if (isset($_SESSION["id_user"])) {
     // Jika sudah login, arahkan ke halaman dashboard atau halaman lain yang sesuai
     redirect_to("dashboard.php");
 }
