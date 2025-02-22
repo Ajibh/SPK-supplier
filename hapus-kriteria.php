@@ -5,7 +5,7 @@
 $ada_error = false;
 $result = '';
 
-$id_kriteria = (isset($_GET['id'])) ? trim($_GET['id']) : '';
+// $id_kriteria = (isset($_GET['id'])) ? trim($_GET['id']) : '';
 
 if (!$id_kriteria) {
 	$ada_error = 'Maaf, data tidak dapat diproses.';
