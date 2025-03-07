@@ -3,7 +3,6 @@ require_once('includes/init.php');
 
 // Cek apakah pengguna sudah login
 if (isset($_SESSION["id_user"])) {
-    // Jika sudah login, arahkan ke halaman dashboard atau halaman lain yang sesuai
     redirect_to("dashboard.php");
 }
 
@@ -24,14 +23,28 @@ if (isset($_POST['submit'])):
     if (empty($errors)):
         $query = mysqli_query($koneksi, "SELECT * FROM user WHERE username = '$username'");
         $cek = mysqli_num_rows($query);
-        $data = mysqli_fetch_array($query);
+        $data = mysqli_fetch_assoc($query);
 
         if ($cek > 0) {
             $hashed_password = sha1($password);
             if ($data['password'] === $hashed_password) {
+                // Set Session
                 $_SESSION["id_user"] = $data["id_user"];
                 $_SESSION["username"] = $data["username"];
                 $_SESSION["role"] = $data["role"];
+
+                // Ambil id_supplier jika role adalah 3
+                if ($data["role"] == '3') {
+                    $query_supplier = mysqli_query($koneksi, "SELECT id_supplier FROM supplier WHERE id_user = '" . $data["id_user"] . "'");
+                    $data_supplier = mysqli_fetch_assoc($query_supplier);
+
+                    if ($data_supplier) {
+                        $_SESSION["id_supplier"] = $data_supplier["id_supplier"];
+                    } else {
+                        $errors[] = 'ID Supplier tidak ditemukan!';
+                    }
+                }
+
                 redirect_to("dashboard.php");
             } else {
                 $errors[] = 'Username atau password salah!';
@@ -111,7 +124,9 @@ endif;
                                             <input required autocomplete="off" type="password" name="password"
                                                 class="form-control" id="yourPassword" placeholder="Masukan Password">
                                         </div>
-                                        <button name="submit" type="submit" class="btn btn-primary w-100">Login</button>
+                                        <div class="text-center">
+                                        <button name="submit" type="submit" class="btn btn-primary btn-sm w-50">Login</button>
+                                        </div>
                                         <div class="text-center mt-2">
                                             Belum punya akun?
                                             <a href="register.php" class="text-decoration-underline fw-bold">Daftar di

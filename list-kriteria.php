@@ -16,9 +16,9 @@ require_once('template/header.php');
 		</nav>
 	</div>
 </div>
-<div class="mb-2">
+<!-- <div class="mb-2">
 	<a href="tambah-kriteria.php" class="btn btn-success btn-sm"> + Tambah</a>
-</div>
+</div> -->
 
 <?php
 $status = isset($_GET['status']) ? $_GET['status'] : '';
@@ -47,13 +47,12 @@ endif;
 			<table class="table table-striped table-bordered" width="100%" cellspacing="0">
 				<thead>
 					<tr align="center">
-						<th>No</th>
+						<th widht="5%" >No</th>
 						<th>Kode Kriteria</th>
 						<th>Nama Kriteria</th>
 						<th>Type</th>
 						<th>Bobot</th>
 						<th>Cara Penilaian</th>
-						<th width="15%">Aksi</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -77,19 +76,6 @@ endif;
 								?>
 							</td>
 							<td><?php echo ($data['ada_pilihan']) ? 'Pilihan Sub Kriteria' : 'Input Langsung'; ?></td>
-							<td>
-								<div>
-									<a data-toggle="tooltip" data-placement="bottom" title="Edit Data"
-										href="edit-kriteria.php?id=<?php echo $data['id_kriteria']; ?>">
-										<i class="bi bi-pencil-square" style="margin-right: 10px;"></i>
-									</a>
-									<a data-toggle="tooltip" data-placement="bottom" title="Hapus Data"
-										href="hapus-kriteria.php?id=<?php echo $data['id_kriteria']; ?>"
-										onclick="return confirm('Apakah anda yakin untuk menghapus data ini')">
-										<i class="bi bi-trash"></i>
-									</a>
-								</div>
-							</td>
 						</tr>
 						<?php
 						$no++;

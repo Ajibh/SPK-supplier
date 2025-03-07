@@ -13,7 +13,6 @@
     <link href="assets/img/lambang.png" rel="icon" />
     <link href="assets/img/lambang.png" rel="apple-touch-icon" />
 
-
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect" />
     <link
@@ -29,6 +28,7 @@
     <link href="assets/css/style.css" rel="stylesheet" />
     <script src="assets/vendor/jquery/jquery.min.js"></script>
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
 </head>
 
 <body>
@@ -103,6 +103,18 @@
             $user_role = get_role();
             if ($user_role == 'admin') {
                 ?>
+
+                <li class="nav-item">
+                    <a class="<?php if ($page == 'bobot') {
+                        echo 'nav-link';
+                    } else {
+                        echo 'nav-link collapsed';
+                    } ?>" href="tambah-bobot-ahp.php">
+                        <i class="bi bi-box"></i>
+                        <span>Hitung Bobot AHP</span>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="<?php if ($page == 'Kriteria') {
                         echo 'nav-link';
@@ -111,17 +123,6 @@
                     } ?>" href="list-kriteria.php">
                         <i class="bi bi-file-bar-graph"></i>
                         <span>Data Kriteria</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'ahp') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="tambah-bobot.php">
-                        <i class="bi bi-box"></i>
-                        <span>Hitung Bobot AHP</span>
                     </a>
                 </li>
 
@@ -143,6 +144,17 @@
                 <?php } ?>
 
                 <li class="nav-item">
+                    <a class="<?php if ($page == 'Jenis_Ukuran_Rotan') {
+                        echo 'nav-link';
+                    } else {
+                        echo 'nav-link collapsed';
+                    } ?>" href="jenis-ukuran-rotan.php">
+                        <i class="bi bi-file-bar-graph"></i>
+                        <span>Jenis & Ukuran Rotan</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="<?php if ($page == 'Alternatif') {
                         echo 'nav-link';
                     } else {
@@ -153,7 +165,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="<?php if ($page == 'Penilaian') {
                         echo 'nav-link';
                     } else {
@@ -162,7 +174,7 @@
                         <i class="bi bi-person-fill-check"></i>
                         <span>Penilaian</span>
                     </a>
-                </li>
+                </li> -->
 
                 <li class="nav-item">
                     <a class="<?php if ($page == 'Perhitungan') {
@@ -187,15 +199,15 @@
                 </li>
 
                 <?php
-            } elseif ($user_role == 'user') {
+            } elseif ($user_role == 'customer') {
                 ?>
 
                 <li class="nav-item">
-                    <a class="<?php if ($page == 'ahp') {
+                    <a class="<?php if ($page == 'bobot') {
                         echo 'nav-link';
                     } else {
                         echo 'nav-link collapsed';
-                    } ?>" href="tambah-bobot.php">
+                    } ?>" href="tambah-bobot-ahp.php">
                         <i class="bi bi-box"></i>
                         <span>Hitung Bobot AHP</span>
                     </a>
@@ -205,14 +217,24 @@
                     <a class="<?= ($page == 'input_jenis_rotan_kualitas') ? 'nav-link' : 'nav-link collapsed'; ?>"
                         href="input-jenis-rotan-kualitas.php">
                         <i class="bi bi-pin"></i>
-                        <span>Input jenis Rotan & Kualitas</span>
+                        <span>Cari Rotan</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="<?php if ($page == 'saw') {
+                        echo 'nav-link';
+                    } else {
+                        echo 'nav-link collapsed';
+                    } ?>" href="saw.php">
+                        <i class="bi bi-box"></i>
+                        <span>saw</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="<?= ($page == 'Perhitungan') ? 'nav-link' : 'nav-link collapsed'; ?>" href="perhitungan.php">
+                    <a class="<?= ($page == 'Perankingan') ? 'nav-link' : 'nav-link collapsed'; ?>" href="perankingan.php">
                         <i class="bi bi-calculator"></i>
-                        <span>Perhitungan</span>
+                        <span>Perankingan</span>
                     </a>
                 </li>
 
@@ -227,8 +249,7 @@
             } elseif ($user_role == 'supplier') {
                 ?>
                 <li class="nav-item">
-                    <a class="<?= ($page == 'data_rotan') ? 'nav-link' : 'nav-link collapsed'; ?>"
-                        href="data-rotan.php">
+                    <a class="<?= ($page == 'data_rotan') ? 'nav-link' : 'nav-link collapsed'; ?>" href="data-rotan.php">
                         <i class="bi bi-pin"></i>
                         <span>Data Rotan</span>
                     </a>
@@ -238,6 +259,19 @@
             ?>
 
             <li class="nav-heading">Manajemen User</li>
+
+            <?php if ($user_role == 'customer') { ?>
+                <li class="nav-item">
+                    <a class="<?php if ($page == 'panduan') {
+                        echo 'nav-link';
+                    } else {
+                        echo 'nav-link collapsed';
+                    } ?>" href="panduan.php">
+                        <i class="bi bi-person-square"></i>
+                        <span>Panduan</span>
+                    </a>
+                </li>
+            <?php } ?>
 
             <?php if ($user_role == 'admin') { ?>
                 <li class="nav-item">

@@ -1,6 +1,6 @@
 <?php require_once('includes/init.php');
 $user_role = get_role();
-if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
+if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier') {
 	?>
 
 	<?php
@@ -16,14 +16,14 @@ if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
 		$password = $_POST['password'];
 		$password2 = $_POST['password2'];
 		$nama = $_POST['nama'];
-		$email = $_POST['email'];
+		$kontak = $_POST['kontak'];
 
 		if (!$nama) {
 			$errors[] = 'Nama tidak boleh kosong';
 		}
 
-		if (!$email) {
-			$errors[] = 'Email tidak boleh kosong';
+		if (!$kontak) {
+			$errors[] = 'kontak tidak boleh kosong';
 		}
 
 		if (!$id_user) {
@@ -34,13 +34,12 @@ if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
 			$errors[] = 'Password harus sama keduanya';
 		}
 
-
 		if (empty($errors)):
-			$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama', email = '$email' WHERE id_user = '$id_user'");
+			$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama', kontak = '$kontak' WHERE id_user = '$id_user'");
 
 			if ($password) {
 				$pass = sha1($password);
-				$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama',  password = '$pass', email = '$email' WHERE id_user = '$id_user'");
+				$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama',  password = '$pass', kontak = '$kontak' WHERE id_user = '$id_user'");
 			}
 			if ($update) {
 				$errors[] = 'Data berhasil diupdate';
@@ -127,9 +126,9 @@ if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
 										</div>
 
 										<div class="form-group col-md-8">
-											<label class="font-weight-bold">E-Mail</label>
-											<input autocomplete="off" type="email" name="email" required
-												value="<?php echo $d['email']; ?>" class="form-control" />
+											<label class="font-weight-bold">Kontak</label>
+											<input autocomplete="off" type="kontak" name="kontak" required
+												value="<?php echo $d['kontak']; ?>" class="form-control" />
 										</div>
 
 										<div class="form-group col-md-4">

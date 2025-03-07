@@ -18,10 +18,6 @@ require_once('template/header.php');
 	</div>
 </div>
 
-<div class="mb-2">
-	<a href="tambah-alternatif.php" class="btn btn-success btn-sm"><i class="bi bi-plus"></i>Tambah </a>
-</div>
-
 <?php
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $msg = '';
@@ -46,7 +42,7 @@ endif;
 	<div class="card-body">
 		<h5 class="card-title"></h5>
 		<div class="table-responsive">
-			<table class="table table-striped table-bordered" width="100%" cellspacing="0">
+			<table id="dataTable" class="table table-striped table-bordered" width="100%" cellspacing="0">
 				<thead>
 					<tr align="center">
 						<th width="5%">No</th>
@@ -65,7 +61,8 @@ endif;
 						<tr align="center">
 							<td><?php echo $no; ?></td>
 							<td align="left">
-								<?php echo !empty($data['nama']) ? htmlspecialchars($data['nama']) : 'Tidak ada'; ?></td>
+								<?php echo !empty($data['nama']) ? htmlspecialchars($data['nama']) : 'Tidak ada'; ?>
+							</td>
 							<td align="left">
 								<?php echo !empty($data['alamat']) ? htmlspecialchars($data['alamat']) : 'Tidak ada'; ?>
 							</td>
@@ -73,14 +70,10 @@ endif;
 								<div>
 									<a data-toggle="tooltip" data-placement="bottom" title="Lihat Detail"
 										href="detail-supplier.php?id=<?php echo $data['id_supplier']; ?>">
-										<i class="bi bi-eye" style="margin-right:10px;"></i></a>
-									<a data-toggle="tooltip" data-placement="bottom" title="Edit Data"
-										href="edit-alternatif.php?id=<?php echo $data['id_supplier']; ?>"><i
-											class="bi bi-pencil-square" style="margin-right:10px;"></i></a>
-									<a data-toggle="tooltip" data-placement="bottom" title="Hapus Data"
-										href="hapus-alternatif.php?id=<?php echo $data['id_supplier']; ?>"
-										onclick="return confirm ('Apakah anda yakin untuk menghapus data ini?')"><i
-											class="bi bi-trash"></i></a>
+										<button class="btn btn-sm">
+											<i class="bi bi-eye" style="margin-right:5px;"></i> Detail
+										</button>
+									</a>
 								</div>
 							</td>
 						</tr>
@@ -90,5 +83,6 @@ endif;
 		</div>
 	</div>
 </div>
+
 
 <?php require_once('template/footer.php'); ?>

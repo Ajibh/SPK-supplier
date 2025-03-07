@@ -2,7 +2,7 @@
 require_once('includes/init.php');
 
 $user_role = get_role();
-if ($user_role == 'admin' || $user_role == 'user') {
+if ($user_role == 'admin' || $user_role == 'customer') {
 
 	$page = "Perhitungan";
 	require_once('template/header.php');
@@ -151,7 +151,6 @@ if ($user_role == 'admin' || $user_role == 'user') {
 			</div>
 		</div>
 	</div>
-
 
 	<div class="card">
 		<div class="card-body">

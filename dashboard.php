@@ -2,7 +2,7 @@
 require_once('includes/init.php');
 
 $user_role = get_role();
-if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
+if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier') {
 	$page = "Dashboard";
 	require_once('template/header.php');
 
@@ -175,13 +175,12 @@ if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
 					<?php } ?>
 				</div>
 			</div>
-
 		</section>
 
 
 
 		<?php
-	} elseif ($user_role == 'user') {
+	} elseif ($user_role == 'customer') {
 		?>
 		<div class="alert alert-info alert-dismissible fade show" role="alert">
 			Selamat Datang <span class="text-uppercase"><b><?php echo $_SESSION['username']; ?>!</b></span>.
@@ -193,13 +192,13 @@ if ($user_role == 'admin' || $user_role == 'user' || $user_role == 'supplier') {
 					<div class="col-lg-4 col-md-6 mb-4">
 						<div class="card info-card sales-card">
 							<div class="card-body">
-								<h5 class="card-title">Input jenis 	Rotan & Kualitasnya</h5>
+								<h5 class="card-title">Cari Rotan</h5>
 								<div class="d-flex align-items-center">
 									<div class="card-icon rounded d-flex align-items-center justify-content-center">
 										<i class="bi bi-envelope-fill"></i>
 									</div>
 									<div class="ps-3">
-										<a href="pesan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
+										<a href="input-jenis-rotan-kualitas.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
 									</div>
 								</div>
 							</div>

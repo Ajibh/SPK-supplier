@@ -18,56 +18,60 @@ require_once('template/header.php');
 	</div>
 </div>
 
-<?php
-// Proses Simpan Data
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	$jenis_rotan = $_POST['jenis_rotan'];
-	$kualitas_rotan = $_POST['kualitas_rotan'];
-
-	// Validasi
-	$errors = [];
-	if (empty($jenis_rotan)) {
-		$errors[] = 'Jenis rotan harus dipilih.';
-	}
-	if (empty($kualitas_rotan)) {
-		$errors[] = 'Kualitas rotan harus dipilih.';
-	}
-
-	// Jika tidak ada error, simpan ke database
-	if (empty($errors)) {
-		$query = "INSERT INTO pilihan_rotan (jenis_rotan) VALUES ('$jenis_rotan')";
-		$result = mysqli_query($koneksi, $query);
-
-		if ($result) {
-			echo '<div class="alert alert-success">Data berhasil disimpan.</div>';
-		} else {
-			echo '<div class="alert alert-danger">Gagal menyimpan data.</div>';
-		}
-	} else {
-		foreach ($errors as $error) {
-			echo '<div class="alert alert-danger">' . $error . '</div>';
-		}
-	}
-}
-?>
-
 <div class="card">
 	<div class="card-body">
-		<h5 class="card-title">Tentukan Jenis dan Kualitas yang diinginkan</h5>
+		<h5 class="card-title">Tentukan Jenis, Ukuran dan Kualitas Rotan yang diinginkan</h5>
 		<form action="" method="POST">
 			<div class="mb-3">
-				<label for="jenis_rotan" class="form-label">Jenis Rotan</label>
-				<select name="jenis_rotan" class="form-control" required>
-					<option value="">--Pilih Jenis Rotan--</option>
-					<?php
-					// Ambil data Jenis Rotan dari database
-					$query_jenis = mysqli_query($koneksi, "SELECT * FROM jenis_rotan ORDER BY nama_jenis ASC");
-					while ($jenis = mysqli_fetch_array($query_jenis)) {
-						echo '<option value="' . $jenis['id_jenis_rotan'] . '">' . $jenis['nama_jenis'] . '</option>';
-					}
-					?>
-				</select>
+				<label for="id_jenis" class="form-label">Jenis Rotan</label>
+				<div class="dropdown">
+					<button class="form-control text-start" type="button" id="dropdownJenisRotan"
+						data-bs-toggle="dropdown" aria-expanded="false">
+						-- Pilih Jenis Rotan --
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownJenisRotan"
+						style="max-height: 200px; overflow-y: auto;">
+						<?php
+						$query_jenis = "SELECT id_jenis, nama_jenis FROM jenis_rotan";
+						$result_jenis = mysqli_query($koneksi, $query_jenis);
+						while ($row = mysqli_fetch_assoc($result_jenis)):
+							?>
+							<li>
+								<a class="dropdown-item" href="#" data-value="<?= $row['id_jenis']; ?>">
+									<?= $row['nama_jenis']; ?>
+								</a>
+							</li>
+						<?php endwhile; ?>
+					</ul>
+					<input type="hidden" name="id_jenis" id="id_jenis" required>
+				</div>
 			</div>
+
+			<div class="mb-3">
+				<label for="id_ukuran" class="form-label">Ukuran</label>
+				<div class="dropdown">
+					<button class="form-control text-start" type="button" id="dropdownUkuranRotan"
+						data-bs-toggle="dropdown" aria-expanded="false">
+						-- Pilih Ukuran --
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownUkuranRotan"
+						style="max-height: 200px; overflow-y: auto;">
+						<?php
+						$query_ukuran = "SELECT id_ukuran, ukuran FROM ukuran_rotan";
+						$result_ukuran = mysqli_query($koneksi, $query_ukuran);
+						while ($row = mysqli_fetch_assoc($result_ukuran)):
+							?>
+							<li>
+								<a class="dropdown-item" href="#" data-value="<?= $row['id_ukuran']; ?>">
+									<?= $row['ukuran']; ?>
+								</a>
+							</li>
+						<?php endwhile; ?>
+					</ul>
+					<input type="hidden" name="id_ukuran" id="id_ukuran" required>
+				</div>
+			</div>
+
 			<div class="mb-3">
 				<label for="kualitas_rotan" class="form-label">Kualitas Rotan</label>
 				<select name="kualitas_rotan" class="form-control" required>
@@ -77,105 +81,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					<option value="CD">CD</option>
 				</select>
 			</div>
-			<button type="submit" class="btn btn-primary" name="submit">Simpan</button>
+			<button type="submit" class="btn btn-primary btn-sm" name="submit">Cari</button>
 		</form>
 	</div>
 </div>
 
 <?php
+// Pastikan data hasil filtering hanya muncul jika ada input dari form
 if (isset($_POST['submit'])) {
-	$jenis_rotan = $_POST['jenis_rotan'];
+	$id_jenis = $_POST['id_jenis'];
+	$id_ukuran = $_POST['id_ukuran'];
 	$kualitas_rotan = $_POST['kualitas_rotan'];
 
-	// Step 1: Ambil data supplier yang memiliki jenis rotan yang dipilih
-	$query_supplier = mysqli_query($koneksi, "
-		SELECT s.id_supplier, s.nama_supplier, s.alamat_supplier, k.harga, k.jarak, k.stok
-		FROM supplier s
-		JOIN kriteria_supplier k ON s.id_supplier = k.id_supplier
-		WHERE k.id_jenis_rotan = '$jenis_rotan'
-	");
-
-	// Step 2: Normalisasi Nilai Kriteria
-	$data_supplier = [];
-	while ($supplier = mysqli_fetch_array($query_supplier)) {
-		$data_supplier[] = $supplier;
+	// Menentukan kolom harga berdasarkan kualitas yang dipilih
+	$harga_column = '';
+	if ($kualitas_rotan == 'AB') {
+		$harga_column = 'harga_ab';
+	} elseif ($kualitas_rotan == 'BC') {
+		$harga_column = 'harga_bc';
+	} elseif ($kualitas_rotan == 'CD') {
+		$harga_column = 'harga_cd';
 	}
 
-	// Normalisasi Harga (Cost)
-	$min_harga = min(array_column($data_supplier, 'harga'));
-	foreach ($data_supplier as &$data) {
-		$data['normalisasi_harga'] = $min_harga / $data['harga'];
-	}
+	// Query untuk mengambil data supplier dengan kriteria yang dipilih
+	$query = "SELECT supplier.nama AS nama_supplier, supplier.kontak, 
+			jenis_rotan.nama_jenis, ukuran_rotan.ukuran, data_rotan.$harga_column 
+			FROM data_rotan
+			JOIN supplier ON data_rotan.id_supplier = supplier.id_supplier
+			JOIN jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
+			JOIN ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran
+			WHERE data_rotan.id_jenis = '$id_jenis' 
+			AND data_rotan.id_ukuran = '$id_ukuran' 
+			AND data_rotan.$harga_column > 0"; // Hanya mengambil yang harganya tidak nol
 
-	// Normalisasi Jarak (Cost)
-	$min_jarak = min(array_column($data_supplier, 'jarak'));
-	foreach ($data_supplier as &$data) {
-		$data['normalisasi_jarak'] = $min_jarak / $data['jarak'];
-	}
+	$result = mysqli_query($koneksi, $query);
+}
+?>
 
-	// Normalisasi Stok (Benefit)
-	$max_stok = max(array_column($data_supplier, 'stok'));
-	foreach ($data_supplier as &$data) {
-		$data['normalisasi_stok'] = $data['stok'] / $max_stok;
-	}
-
-	// Step 3: Hitung Nilai SAW
-	$hasil_ranking = [];
-	$bobot = [
-		'harga' => 0.4,
-		'jarak' => 0.3,
-		'stok' => 0.3
-	];
-	foreach ($data_supplier as $data) {
-		$nilai_total =
-			$bobot['harga'] * $data['normalisasi_harga'] +
-			$bobot['jarak'] * $data['normalisasi_jarak'] +
-			$bobot['stok'] * $data['normalisasi_stok'];
-		$hasil_ranking[] = [
-			'nama_supplier' => $data['nama_supplier'],
-			'alamat_supplier' => $data['alamat_supplier'],
-			'nilai_total' => $nilai_total
-		];
-	}
-
-	// Step 4: Urutkan Berdasarkan Nilai Total
-	usort($hasil_ranking, function ($a, $b) {
-		return $b['nilai_total'] <=> $a['nilai_total'];
-	});
-	?>
-
-	<!-- Card Rekomendasi -->
-	<div class="card mt-4">
-		<div class="card-body">
-			<h5 class="card-title">Rekomendasi Supplier</h5>
-			<div class="table-responsive">
+<div class="card mt-4">
+	<div class="card-body">
+		<h5 class="card-title">Hasil Filtering</h5>
+		<?php if (isset($result) && mysqli_num_rows($result) > 0): ?>
+			<form action="saw.php" method="POST">
 				<table class="table table-bordered">
 					<thead>
-						<tr align="center">
-							<th>No</th>
-							<th>Nama Supplier</th>
-							<th>Alamat</th>
-							<th>Nilai Total</th>
+						<tr>
+							<th>Supplier</th>
+							<th>Jenis Rotan</th>
+							<th>Ukuran</th>
+							<th>Harga (<?= $kualitas_rotan ?>)</th>
+							<th>Kontak</th>
 						</tr>
 					</thead>
 					<tbody>
-						<?php
-						$no = 1;
-						foreach ($hasil_ranking as $ranking) {
-							?>
-							<tr align="center">
-								<td><?php echo $no++; ?></td>
-								<td align="left"><?php echo $ranking['nama_supplier']; ?></td>
-								<td align="left"><?php echo $ranking['alamat_supplier']; ?></td>
-								<td><?php echo round($ranking['nilai_total'], 4); ?></td>
+						<?php while ($row = mysqli_fetch_assoc($result)): ?>
+							<tr>
+								<td><?= $row['nama_supplier']; ?></td>
+								<td><?= $row['nama_jenis']; ?></td>
+								<td><?= $row['ukuran']; ?></td>
+								<td><?= number_format($row[$harga_column], 0, ',', '.'); ?></td>
+								<td><?= $row['kontak']; ?></td>
+								<input type="hidden" name="id_supplier[]" value="<?= $row['nama_supplier']; ?>">
+								<input type="hidden" name="harga[]" value="<?= $row[$harga_column]; ?>">
 							</tr>
-						<?php } ?>
+						<?php endwhile; ?>
 					</tbody>
 				</table>
-			</div>
-		</div>
+				<button type="submit" class="btn btn-primary" name="lanjut">Lanjut Perankingan</button>
+			</form>
+		<?php else: ?>
+			<p class="text-danger">Tidak ada data yang sesuai dengan filter yang dipilih.</p>
+		<?php endif; ?>
 	</div>
-<?php } ?>
+</div>
+
+
+<script>
+	// Script untuk Dropdown Jenis Rotan
+	document.querySelectorAll('.dropdown-item').forEach(item => {
+		item.addEventListener('click', function (e) {
+			e.preventDefault();
+			const value = this.getAttribute('data-value');
+			const text = this.textContent;
+
+			// Tentukan dropdown yang dipilih
+			if (this.closest('.dropdown').querySelector('#dropdownJenisRotan')) {
+				document.getElementById('id_jenis').value = value;
+				document.getElementById('dropdownJenisRotan').textContent = text;
+			}
+			if (this.closest('.dropdown').querySelector('#dropdownUkuranRotan')) {
+				document.getElementById('id_ukuran').value = value;
+				document.getElementById('dropdownUkuranRotan').textContent = text;
+			}
+		});
+	});
+</script>
 
 <?php
 require_once('template/footer.php');

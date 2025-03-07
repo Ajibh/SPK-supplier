@@ -14,15 +14,15 @@ if (isset($_POST['submit'])):
 	$password = $_POST['password'];
 	$password2 = $_POST['password2'];
 	$nama = $_POST['nama'];
-	$email = $_POST['email'];
+	$kontak = $_POST['kontak'];
 	$role = $_POST['role'];
 
 	if (!$nama) {
 		$errors[] = 'Nama tidak boleh kosong';
 	}
 
-	if (!$email) {
-		$errors[] = 'Email tidak boleh kosong';
+	if (!$kontak) {
+		$errors[] = 'kontak tidak boleh kosong';
 	}
 
 	if (!$role) {
@@ -37,13 +37,12 @@ if (isset($_POST['submit'])):
 		$errors[] = 'Password harus sama keduanya';
 	}
 
-
 	if (empty($errors)):
-		$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama', email = '$email', role = '$role' WHERE id_user = '$id_user'");
+		$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama', kontak = '$kontak', role = '$role' WHERE id_user = '$id_user'");
 
 		if ($password) {
 			$pass = sha1($password);
-			$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama',  password = '$pass', email = '$email', role = '$role' WHERE id_user = '$id_user'");
+			$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama',  password = '$pass', kontak = '$kontak', role = '$role' WHERE id_user = '$id_user'");
 		}
 		if ($update) {
 			redirect_to('list-user.php?status=sukses-edit');
@@ -128,7 +127,7 @@ require_once('template/header.php');
 
 							<div class="form-group col-md-6">
 								<label class="font-weight-bold">E-Mail</label>
-								<input autocomplete="off" type="email" name="email" required value="<?php echo $d['email']; ?>"
+								<input autocomplete="off" type="kontak" name="kontak" required value="<?php echo $d['kontak']; ?>"
 									class="form-control" />
 							</div>
 

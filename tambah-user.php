@@ -10,7 +10,7 @@ if (isset($_POST['submit'])):
 	$password = $_POST['password'];
 	$password2 = $_POST['password2'];
 	$nama = $_POST['nama'];
-	$email = $_POST['email'];
+	$kontak = $_POST['kontak'];
 	$role = $_POST['role'];
 
 	if (!$username) {
@@ -29,8 +29,8 @@ if (isset($_POST['submit'])):
 		$errors[] = 'Nama tidak boleh kosong';
 	}
 
-	if (!$email) {
-		$errors[] = 'Email tidak boleh kosong';
+	if (!$kontak) {
+		$errors[] = 'kontak tidak boleh kosong';
 	}
 
 	if (!$role) {
@@ -48,7 +48,7 @@ if (isset($_POST['submit'])):
 
 	if (empty($errors)):
 		$pass = sha1($password);
-		$simpan = mysqli_query($koneksi, "INSERT INTO user (id_user, username, password, nama, email, role) VALUES ('', '$username', '$pass', '$nama', '$email', '$role')");
+		$simpan = mysqli_query($koneksi, "INSERT INTO user (id_user, username, password, nama, kontak, role) VALUES ('', '$username', '$pass', '$nama', '$kontak', '$role')");
 		if ($simpan) {
 			redirect_to('list-user.php?status=sukses-baru');
 		} else {
@@ -114,7 +114,7 @@ require_once('template/header.php');
 
 				<div class="form-group col-md-6">
 					<label class="font-weight-bold">E-Mail</label>
-					<input autocomplete="off" type="email" name="email" required class="form-control" />
+					<input autocomplete="off" type="kontak" name="kontak" required class="form-control" />
 				</div>
 
 				<div class="form-group col-md-6">

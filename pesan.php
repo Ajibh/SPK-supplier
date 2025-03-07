@@ -8,7 +8,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 $user_role = get_role();
-if ($user_role == 'admin' || $user_role == 'user') {
+if ($user_role == 'admin' || $user_role == 'customer') {
 
     $page = "Pesan";
     require_once('template/header.php');

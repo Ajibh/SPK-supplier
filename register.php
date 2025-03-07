@@ -1,28 +1,30 @@
-<?php require_once('includes/init.php'); ?>
-
 <?php
+require_once('includes/init.php');
+
 $errors = array();
 $username = isset($_POST['username']) ? trim($_POST['username']) : '';
 $password = isset($_POST['password']) ? trim($_POST['password']) : '';
 $confirm_password = isset($_POST['confirm_password']) ? trim($_POST['confirm_password']) : '';
 $nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
 $alamat = isset($_POST['alamat']) ? trim($_POST['alamat']) : '';
-$email = isset($_POST['email']) ? trim($_POST['email']) : '';
-$role = isset($_POST['role']) ? $_POST['role'] : 'user'; // Default 'user'
+$kontak = isset($_POST['kontak']) ? trim($_POST['kontak']) : '';
+$role = isset($_POST['role']) ? $_POST['role'] : ''; // Tidak ada default, wajib memilih
 
-// Mengubah role ke angka (2 untuk customer, 3 untuk supplier) tanpa nilai default
+if (!$koneksi) {
+    die("Koneksi ke database gagal: " . mysqli_connect_error());
+}
+
+// Konversi role menjadi angka
 if ($role === 'customer') {
     $role = 2;
 } elseif ($role === 'supplier') {
     $role = 3;
 } else {
-    $role = ''; // Kosongkan jika tidak dipilih, bisa dikontrol di frontend agar wajib memilih
+    $role = 0; // Jika role tidak valid
 }
 
-
 if (isset($_POST['submit'])) {
-
-    // Validasi
+    // Validasi input
     if (!$username) {
         $errors[] = 'Username tidak boleh kosong';
     }
@@ -38,38 +40,68 @@ if (isset($_POST['submit'])) {
     if (!$alamat) {
         $errors[] = 'Alamat/Lokasi perusahaan tidak boleh kosong';
     }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Email tidak valid';
+    if (!$kontak) {
+        $errors[] = 'Kontak tidak boleh kosong';
     }
-    if (!$role) {
+    if ($role === 0) {
         $errors[] = 'Role harus dipilih';
     }
 
     if (empty($errors)) {
         // Cek apakah username sudah digunakan
+        $username = mysqli_real_escape_string($koneksi, $username);
         $query = mysqli_query($koneksi, "SELECT * FROM user WHERE username = '$username'");
         $cek = mysqli_num_rows($query);
 
         if ($cek > 0) {
             $errors[] = 'Username sudah digunakan!';
         } else {
-            // Simpan data ke database
             $hashed_password = sha1($password);
-            $query = "INSERT INTO user (username, password, nama, email, alamat, role) VALUES ('$username', '$hashed_password', '$nama', '$email', '$alamat', '$role')";
-            $result = mysqli_query($koneksi, $query);
+            // Simpan data ke tabel user
+            $queryUser = "INSERT INTO user (username, password, nama, kontak, alamat, role) 
+                          VALUES ('$username', '$hashed_password', '$nama', '$kontak', '$alamat', '$role')";
+            $resultUser = mysqli_query($koneksi, $queryUser);
 
-            if ($result) {
-                $_SESSION["id_user"] = mysqli_insert_id($koneksi);
-                $_SESSION["username"] = $username;
-                $_SESSION["role"] = $role;
-                redirect_to("dashboard.php");
+            if ($resultUser) {
+                $id_user = mysqli_insert_id($koneksi);
+                $id_supplier = null;
+
+                // Jika user adalah supplier, tambahkan ke tabel supplier
+                if ($role == 3) {
+                    $querySupplier = "INSERT INTO supplier (id_user, nama, kontak, alamat) 
+                                      VALUES ('$id_user', '$nama', '$kontak', '$alamat')";
+                    $resultSupplier = mysqli_query($koneksi, $querySupplier);
+
+                    if ($resultSupplier) {
+                        $id_supplier = mysqli_insert_id($koneksi);
+                    } else {
+                        $errors[] = 'Gagal menambahkan supplier: ' . mysqli_error($koneksi);
+                    }
+                }
+
+                if (empty($errors)) {
+                    // Simpan data ke session
+                    $_SESSION["id_user"] = $id_user;
+                    $_SESSION["username"] = $username;
+                    $_SESSION["role"] = $role;
+
+                    // Simpan id_supplier jika user adalah supplier
+                    if ($role == 3 && $id_supplier) {
+                        $_SESSION["id_supplier"] = $id_supplier;
+                    }
+
+                    header("Location: dashboard.php");
+                    exit();
+                }
+
             } else {
-                $errors[] = 'Registrasi gagal, silakan coba lagi!';
+                $errors[] = 'Registrasi gagal: ' . mysqli_error($koneksi);
             }
         }
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -163,10 +195,10 @@ if (isset($_POST['submit'])) {
                                         placeholder="Alamat/Lokasi"><?php echo htmlspecialchars($alamat); ?></textarea>
                                 </div>
                                 <div class="mb-1 w-100">
-                                    <label for="yourEmail" class="form-label">Email</label>
-                                    <input required autocomplete="off" type="email" name="email" class="form-control"
-                                        id="yourEmail" placeholder="Masukan Email"
-                                        value="<?php echo htmlspecialchars($email); ?>" />
+                                    <label for="yourEmail" class="form-label">Kontak</label>
+                                    <input required autocomplete="off" type="kontak" name="kontak" class="form-control"
+                                        id="yourEmail" placeholder="Masukan No Hp"
+                                        value="<?php echo htmlspecialchars($kontak); ?>" />
                                 </div>
                                 <div class="mb-1 w-100">
                                     <label for="role" class="form-label">Role</label>
@@ -179,7 +211,7 @@ if (isset($_POST['submit'])) {
                                     </select>
                                 </div>
 
-                                <button name="submit" type="submit" class="btn btn-primary w-100 mt-3">Daftar</button>
+                                <button name="submit" type="submit" class="btn btn-primary btn-sm w-100 mt-3">Daftar</button>
                             </form>
                         </div>
                     </div>
@@ -217,7 +249,7 @@ if (isset($_POST['submit'])) {
     <script src="assets/vendor/quill/quill.min.js"></script>
     <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="assets/vendor/php-email-form/validate.js"></script>
+    <script src="assets/vendor/php-kontak-form/validate.js"></script>
 
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>

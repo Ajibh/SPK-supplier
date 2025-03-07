@@ -1,13 +1,16 @@
 <?php
-require_once('includes/init.php'); ?>
-<?php cek_login($role = array(1, 2)); ?>
+require_once('includes/init.php');
+cek_login($role = array('1', '2'));
 
-<?php
-$page = "ahp";
+
+$page = "bobot";
 require_once('template/header.php');
-?>
 
-<?php
+if (!isset($_SESSION['id_user'])) {
+	die("Error: User tidak terdeteksi. Silakan login kembali.");
+}
+
+$id_user = $_SESSION['id_user']; // Ambil id_user dari sesi
 
 //query kriteria
 $kriteria = array();
@@ -20,7 +23,17 @@ while ($krit = mysqli_fetch_array($query)) {
 
 //query simpan
 if (isset($_POST['save'])) {
-	mysqli_query($koneksi, "TRUNCATE TABLE kriteria_ahp");
+	session_start(); // Pastikan sesi dimulai
+	require_once('includes/init.php');
+
+	// Pastikan id_user tersedia dalam sesi
+	if (!isset($_SESSION['id_user'])) {
+		die("Error: User tidak terdeteksi. Silakan login kembali.");
+	}
+	$id_user = $_SESSION['id_user'];
+
+	// Hapus hanya data milik user yang sedang login, bukan semua data
+	mysqli_query($koneksi, "DELETE FROM kriteria_ahp WHERE id_user = '$id_user'");
 
 	$i = 0;
 	foreach ($kriteria as $row1) {
@@ -30,6 +43,7 @@ if (isset($_POST['save'])) {
 				$nilai_input = $_POST["nilai_" . $row1['id_kriteria'] . "_" . $row2['id_kriteria']];
 				$nilai_1 = 0;
 				$nilai_2 = 0;
+
 				if ($nilai_input < 1) {
 					$nilai_1 = abs($nilai_input);
 					$nilai_2 = number_format(1 / abs($nilai_input), 2);
@@ -40,28 +54,34 @@ if (isset($_POST['save'])) {
 					$nilai_1 = 1;
 					$nilai_2 = 1;
 				}
-
-				mysqli_query($koneksi, "INSERT INTO kriteria_ahp (id_kriteria_1, id_kriteria_2, nilai_1, nilai_2) VALUES ('$row1[id_kriteria]', '$row2[id_kriteria]', '$nilai_1', '$nilai_2')");
+				// simpan data ke database
+				$query = "INSERT INTO kriteria_ahp (id_user, id_kriteria_1, id_kriteria_2, nilai_1, nilai_2) 
+				VALUES ('$id_user', '{$row1['id_kriteria']}', '{$row2['id_kriteria']}', '$nilai_1', '$nilai_2') 
+				ON DUPLICATE KEY UPDATE 
+				nilai_1 = VALUES(nilai_1), 
+				nilai_2 = VALUES(nilai_2)";
+				mysqli_query($koneksi, $query);
 			}
 			$ii++;
 		}
 		$i++;
 	}
-	echo "<meta content='0; url=tambah-bobot.php?status=sukses-baru' http-equiv='refresh'>";
+	// Redirect ke halaman tambah-bobot-ahp.php dengan status sukses
+	echo "<meta http-equiv='refresh' content='0; url=tambah-bobot-ahp.php?status=sukses-baru'>";
 }
 
-//cek konsistensi
+
+// Cek konsistensi
 if (isset($_POST['check'])) {
 	if (mysqli_num_rows($query) < 3) {
-		echo "<meta content='0; url=tambah-bobot.php?status=gagal-min' http-equiv='refresh'>";
-	} else {
-		$id_kriterias = array();
-		foreach ($kriteria as $row) {
-			$id_kriterias[] = $row['id_kriteria'];
-		}
+		echo "<meta content='0; url=tambah-bobot-ahp.php?status=gagal-min' http-equiv='refresh'>";
+		exit;
 	}
-
-	// perhitungan metode AHP
+	$id_kriterias = array();
+	foreach ($kriteria as $row) {
+		$id_kriterias[] = $row['id_kriteria'];
+	}
+	// Perhitungan metode AHP
 	$matrik_kriteria = ahp_get_matrik_kriteria($id_kriterias);
 	$jumlah_kolom = ahp_get_jumlah_kolom($matrik_kriteria);
 	$matrik_normalisasi = ahp_get_normalisasi($matrik_kriteria, $jumlah_kolom);
@@ -69,22 +89,33 @@ if (isset($_POST['check'])) {
 	$matrik_baris = ahp_get_matrik_baris($prioritas, $matrik_kriteria);
 	$jumlah_matrik_baris = ahp_get_jumlah_matrik_baris($matrik_baris);
 	$hasil_tabel_konsistensi = ahp_get_tabel_konsistensi($jumlah_matrik_baris, $prioritas);
+
 	if (ahp_uji_konsistensi($hasil_tabel_konsistensi)) {
-		//echo "<meta content='0; url=tambah-bobot.php?status=sukses-konsisten' http-equiv='refresh'>";
+		// Ambil ID user yang sedang login
+		$id_user = $_SESSION['id_user']; // Pastikan session sudah dimulai
+
 		$i = 0;
 		foreach ($kriteria as $row) {
 			$bobot = $prioritas[$i++];
 			$id_kriteria = $row['id_kriteria'];
-			mysqli_query($koneksi, "UPDATE kriteria SET bobot = '$bobot' WHERE id_kriteria = '$id_kriteria'");
+
+			// Simpan bobot ke dalam tabel `bobot_ahp`
+			$query = "
+                INSERT INTO bobot_ahp (id_user, id_kriteria, bobot)
+                VALUES ('$id_user', '$id_kriteria', '$bobot')
+                ON DUPLICATE KEY UPDATE bobot = VALUES(bobot)
+            ";
+			mysqli_query($koneksi, $query);
 		}
 
+		// Menampilkan hasil perhitungan
 		$list_data = tampil_data_1($matrik_kriteria, $jumlah_kolom);
 		$list_data2 = tampil_data_2($matrik_normalisasi, $prioritas);
 		$list_data3 = tampil_data_3($matrik_baris, $jumlah_matrik_baris);
 		$list_data4 = tampil_data_4($jumlah_matrik_baris, $prioritas, $hasil_tabel_konsistensi);
 		$list_data5 = tampil_data_5($jumlah_matrik_baris, $prioritas, $hasil_tabel_konsistensi);
 	} else {
-		echo "<meta content='0; url=tambah-bobot.php?status=gagal-konsisten' http-equiv='refresh'>";
+		echo "<meta content='0; url=tambah-bobot-ahp.php?status=gagal-konsisten' http-equiv='refresh'>";
 	}
 }
 
@@ -96,12 +127,12 @@ foreach ($kriteria as $row1) {
 	$ii = 0;
 	foreach ($kriteria as $row2) {
 		if ($i < $ii) {
-			$query1 = mysqli_query($koneksi, "SELECT * FROM kriteria_ahp WHERE id_kriteria_1 = '$row1[id_kriteria]' AND id_kriteria_2 = '$row2[id_kriteria]';");
+			$query1 = mysqli_query($koneksi, "SELECT * FROM kriteria_ahp WHERE id_kriteria_1 = '{$row1['id_kriteria']}' AND id_kriteria_2 = '{$row2['id_kriteria']}' AND id_user = '$id_user';");
 			$kriteria_ahp = mysqli_fetch_array($query1);
 
-
 			if (empty($kriteria_ahp)) {
-				mysqli_query($koneksi, "INSERT INTO kriteria_ahp (id_kriteria_1, id_kriteria_2, nilai_1, nilai_2) VALUES ('$row1[id_kriteria]', '$row2[id_kriteria]', '1', '1')");
+				mysqli_query($koneksi, "INSERT INTO kriteria_ahp (id_user, id_kriteria_1, id_kriteria_2, nilai_1, nilai_2) 
+				VALUES ('$id_user', '$row1[id_kriteria]', '$row2[id_kriteria]', '1', '1')");			
 
 				$nilai_1 = 1;
 				$nilai_2 = 1;
@@ -128,8 +159,20 @@ $kriteria_ahp = $result;
 
 function ahp_get_matrik_kriteria($id_kriterias)
 {
+	// Mulai sesi jika belum dimulai
+	if (session_status() == PHP_SESSION_NONE) {
+		session_start();
+	}
+	// Pastikan id_user tersedia dalam sesi
+	if (!isset($_SESSION['id_user'])) {
+		die("Error: User tidak terdeteksi. Silakan login kembali.");
+	}
+	$id_user = $_SESSION['id_user']; // Ambil id_user dari sesi
+	include('includes/konek-db.php'); // Pindahkan koneksi ke luar loop agar tidak di-include berkali-kali
+
 	$matrik = array();
 	$i = 0;
+
 	foreach ($id_kriterias as $row1) {
 		$ii = 0;
 		foreach ($id_kriterias as $row2) {
@@ -137,8 +180,8 @@ function ahp_get_matrik_kriteria($id_kriterias)
 				$matrik[$i][$ii] = 1;
 			} else {
 				if ($i < $ii) {
-					include('includes/konek-db.php');
-					$sqledit = mysqli_query($koneksi, "SELECT * FROM kriteria_ahp WHERE id_kriteria_1='$row1' AND id_kriteria_2='$row2';");
+					// Query dengan filter id_user
+					$sqledit = mysqli_query($koneksi, "SELECT * FROM kriteria_ahp WHERE id_kriteria_1='$row1' AND id_kriteria_2='$row2' AND id_user='$id_user';");
 					$kriteria_ahp = mysqli_fetch_array($sqledit);
 
 					if (empty($kriteria_ahp)) {
@@ -156,6 +199,7 @@ function ahp_get_matrik_kriteria($id_kriterias)
 	}
 	return $matrik;
 }
+
 
 function ahp_get_jumlah_kolom($matrik)
 {

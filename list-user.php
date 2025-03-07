@@ -45,7 +45,7 @@ endif;
 	<div class="card-body">
 		<h5 class="card-title"></h5>
 		<div class="table-responsive">
-			<table class="table table-striped table-bordered" width="100%" cellspacing="0">
+			<table id="dataTable" class="table table-striped table-bordered" width="100%" cellspacing="0">
 				<thead>
 					<tr align="center">
 						<th width="5%">No</th>

@@ -2,7 +2,7 @@
 require_once ('includes/init.php');
 
 $user_role = get_role();
-if ($user_role == 'admin' || $user_role == 'user') {
+if ($user_role == 'admin' || $user_role == 'customer') {
 
 	$page = "Hasil";
 	require_once ('template/header.php');

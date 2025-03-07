@@ -83,8 +83,7 @@ if (isset($_SESSION["id_user"])) {
                     </h1>
                     <p class="lead mb-4">Bantu perusahaan Anda memilih supplier rotan terbaik dengan cepat, akurat, dan
                         efisien.</p>
-                    <a href="rekomendasi.php" class="btn btn-custom btn-lg"><i class="bi bi-person-plus"></i> Mulai
-                        Sekarang</a>
+                    <a href="register.php" class="btn btn-custom btn-lg"><i class="bi bi-person-plus"></i> Registrasi</a>
                 </div>
             </div>
         </div>
