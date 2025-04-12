@@ -1,6 +1,6 @@
 <?php
 require_once('includes/init.php');
-cek_login($role = array(3)); // Hanya bisa diakses oleh role 3
+cek_login($role = array(2)); // Hanya bisa diakses oleh role 3
 
 $page = "data_rotan";
 require_once('template/header.php');
@@ -65,8 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 }
 ?>
-
-
 
 <div class="card">
 	<div class="card-body">

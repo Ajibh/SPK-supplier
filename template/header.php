@@ -149,53 +149,6 @@
                 </li>
 
                 <?php
-            } elseif ($user_role == 'customer') {
-                ?>
-
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'bobot') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="tambah-bobot-ahp.php">
-                        <i class="bi bi-box"></i>
-                        <span>Hitung Bobot AHP</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="<?= ($page == 'input_jenis_rotan_kualitas') ? 'nav-link' : 'nav-link collapsed'; ?>"
-                        href="input-jenis-rotan-kualitas.php">
-                        <i class="bi bi-pin"></i>
-                        <span>Cari Rotan</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'saw') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="saw.php">
-                        <i class="bi bi-box"></i>
-                        <span>saw</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="<?= ($page == 'Perankingan') ? 'nav-link' : 'nav-link collapsed'; ?>" href="perankingan.php">
-                        <i class="bi bi-calculator"></i>
-                        <span>Perankingan</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="<?= ($page == 'Rekomendasi') ? 'nav-link' : 'nav-link collapsed'; ?>" href="pesan.php">
-                        <i class="bi bi-bar-chart"></i>
-                        <span>Rekomendasi</span>
-                    </a>
-                </li>
-
-                <?php
             } elseif ($user_role == 'supplier') {
                 ?>
                 <li class="nav-item">

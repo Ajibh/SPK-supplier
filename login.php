@@ -33,8 +33,8 @@ if (isset($_POST['submit'])):
                 $_SESSION["username"] = $data["username"];
                 $_SESSION["role"] = $data["role"];
 
-                // Ambil id_supplier jika role adalah 3
-                if ($data["role"] == '3') {
+                // Ambil id_supplier jika role adalah 2
+                if ($data["role"] == '2') {
                     $query_supplier = mysqli_query($koneksi, "SELECT id_supplier FROM supplier WHERE id_user = '" . $data["id_user"] . "'");
                     $data_supplier = mysqli_fetch_assoc($query_supplier);
 
@@ -125,13 +125,16 @@ endif;
                                                 class="form-control" id="yourPassword" placeholder="Masukan Password">
                                         </div>
                                         <div class="text-center">
-                                        <button name="submit" type="submit" class="btn btn-primary btn-sm w-50">Login</button>
+                                            <button name="submit" type="submit"
+                                                class="btn btn-primary btn-sm mb-2">Login</button>
                                         </div>
-                                        <div class="text-center mt-2">
-                                            Belum punya akun?
-                                            <a href="register.php" class="text-decoration-underline fw-bold">Daftar di
-                                                sini</a>
+                                        <div>
+                                            Bergabung sebagai supplier?
+                                            <a href="register.php" class="text-decoration-underline fw-bold">Klik di
+                                                sini
+                                                untuk daftar!</a>
                                         </div>
+
                                     </form>
                                 </div>
                             </div>

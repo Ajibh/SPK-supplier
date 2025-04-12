@@ -1,6 +1,6 @@
 <?php
 require_once('includes/init.php');
-cek_login($role = array(3));
+cek_login($role = array(2));
 
 $id_supplier = $_SESSION['id_supplier'];
 $page = "data_rotan";
@@ -8,7 +8,7 @@ require_once('template/header.php');
 
 // Pastikan session id_supplier sudah ada
 if (!isset($_SESSION['id_supplier'])) {
-    die('Session id_supplier tidak ditemukan!');
+    die('Session id_supplier tidak ditemukan bos!');
 }
 
 if (!$koneksi) {

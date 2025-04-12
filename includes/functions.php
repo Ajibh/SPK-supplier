@@ -21,8 +21,6 @@ function get_role()
 		if ($_SESSION['role'] == '1') {
 			return 'admin';
 		} elseif ($_SESSION['role'] == '2') {
-			return 'customer';
-		} elseif ($_SESSION['role'] == '3') {
 			return 'supplier';
 		} else {
 			return false; // Role tidak dikenali

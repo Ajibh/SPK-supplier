@@ -65,8 +65,8 @@ $data_supplier = mysqli_fetch_assoc($supplier);
                         <th>Ukuran</th>
                         <th>Kualitas</th>
                         <th>Harga</th>
-                        <th>Ketersediaan Stok</th>
-                        <th>Minimal Pemesanan</th>
+                        <th>Stok</th>
+                        <th>Min. Pembelian</th>
                         <th class="fst-italic">last update</th>
                     </tr>
                 </thead>
@@ -74,25 +74,28 @@ $data_supplier = mysqli_fetch_assoc($supplier);
                     <?php
                     $no = 0;
                     $query = mysqli_query($koneksi, "
-        SELECT 
-            data_rotan.id_rotan,
-            jenis_rotan.nama_jenis AS jenis_rotan,
-            ukuran_rotan.ukuran,
-            data_rotan.kualitas,
-            data_rotan.harga,
-            data_rotan.stok,
-            data_rotan.minimal_pembelian
-        FROM 
-            data_rotan
-        JOIN 
-            jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
-        JOIN 
-            ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran
-        WHERE 
-            data_rotan.id_supplier = '$id_supplier'
-        ORDER BY
-            data_rotan.id_rotan ASC
-    ");
+
+                    SELECT 
+                        data_rotan.id_rotan,
+                        jenis_rotan.nama_jenis AS jenis_rotan,
+                        ukuran_rotan.ukuran,
+                        data_rotan.kualitas,
+                        data_rotan.harga,
+                        data_rotan.stok,
+                        data_rotan.minimal_pembelian,
+                        data_rotan.updated_at
+                    FROM 
+                        data_rotan
+                    JOIN 
+                        jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
+                    JOIN 
+                        ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran
+                    WHERE 
+                        data_rotan.id_supplier = '$id_supplier'
+                    ORDER BY
+                        data_rotan.id_rotan ASC
+                ");
+
 
                     if (mysqli_num_rows($query) > 0):
                         while ($data = mysqli_fetch_array($query)):
@@ -103,10 +106,19 @@ $data_supplier = mysqli_fetch_assoc($supplier);
                                 <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
                                 <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
                                 <td><?php echo htmlspecialchars($data['kualitas']); ?></td>
-                                <td><?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
-                                <td><?php echo htmlspecialchars($data['stok']); ?></td>
-                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?></td>
-                                <td></td>
+                                <td>Rp. <?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
+                                <td><?php echo htmlspecialchars($data['stok']); ?> Kg</td>
+                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
+                                <td>
+                                    <?php
+                                    if (!empty($data['updated_at'])) {
+                                        echo date('d-m-Y H:i:s', strtotime($data['updated_at']));
+                                    } else {
+                                        echo "-"; // atau boleh kamu ganti teks lain, misal: "Belum pernah diupdate"
+                                    }
+                                    ?>
+                                </td>
+
                             </tr>
                             <?php
                         endwhile;

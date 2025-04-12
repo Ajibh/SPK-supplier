@@ -280,11 +280,15 @@ h6 {
 }
 
 .alert {
-  font-size:12px !important;
+  font-size: 12px !important;
   font-family: sans-serif;
   background-color: #35A29F;
-  color:#fff;
+  color: #071952;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* << ini tambahan shadow */
+  border-radius: 8px;
 }
+
 
 /* Alerts */
 .alert-heading {
