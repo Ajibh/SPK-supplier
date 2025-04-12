@@ -70,7 +70,7 @@ endif;
 								<div>
 									<a data-toggle="tooltip" data-placement="bottom" title="Lihat Detail"
 										href="detail-supplier.php?id=<?php echo $data['id_supplier']; ?>">
-										<button class="btn btn-sm">
+										<button class="btn btn-secondary btn-sm">
 											<i class="bi bi-eye" style="margin-right:5px;"></i> Detail
 										</button>
 									</a>

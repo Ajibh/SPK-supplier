@@ -105,52 +105,24 @@
                 ?>
 
                 <li class="nav-item">
-                    <a class="<?php if ($page == 'bobot') {
+                    <a class="<?php if ($page == 'Jenis Rotan') {
                         echo 'nav-link';
                     } else {
                         echo 'nav-link collapsed';
-                    } ?>" href="tambah-bobot-ahp.php">
-                        <i class="bi bi-box"></i>
-                        <span>Hitung Bobot AHP</span>
+                    } ?>" href="jenis-rotan.php">
+                        <i class="bi bi-file-bar-graph"></i>
+                        <span>Jenis Rotan</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="<?php if ($page == 'Kriteria') {
+                    <a class="<?php if ($page == 'Ukuran Rotan') {
                         echo 'nav-link';
                     } else {
                         echo 'nav-link collapsed';
-                    } ?>" href="list-kriteria.php">
+                    } ?>" href="ukuran-rotan.php">
                         <i class="bi bi-file-bar-graph"></i>
-                        <span>Data Kriteria</span>
-                    </a>
-                </li>
-
-                <?php
-                $q = mysqli_query($koneksi, "SELECT COUNT(ada_pilihan) as banyak FROM kriteria WHERE ada_pilihan='1'");
-                $krit = mysqli_fetch_array($q);
-                if ($krit['banyak'] > 0) {
-                    ?>
-                    <li class="nav-item">
-                        <a class="<?php if ($page == 'Sub Kriteria') {
-                            echo 'nav-link';
-                        } else {
-                            echo 'nav-link collapsed';
-                        } ?>" href="list-sub-kriteria.php">
-                            <i class="bi bi-file-bar-graph-fill"></i>
-                            <span>Data Sub Kriteria</span>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'Jenis_Ukuran_Rotan') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="jenis-ukuran-rotan.php">
-                        <i class="bi bi-file-bar-graph"></i>
-                        <span>Jenis & Ukuran Rotan</span>
+                        <span>Ukuran Rotan</span>
                     </a>
                 </li>
 
@@ -165,36 +137,14 @@
                     </a>
                 </li>
 
-                <!-- <li class="nav-item">
-                    <a class="<?php if ($page == 'Penilaian') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="list-penilaian.php">
-                        <i class="bi bi-person-fill-check"></i>
-                        <span>Penilaian</span>
-                    </a>
-                </li> -->
-
                 <li class="nav-item">
-                    <a class="<?php if ($page == 'Perhitungan') {
+                    <a class="<?php if ($page == 'Priset Bobot') {
                         echo 'nav-link';
                     } else {
                         echo 'nav-link collapsed';
-                    } ?>" href="perhitungan.php">
-                        <i class="bi bi-calculator-fill"></i>
-                        <span>Perhitungan</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'Pesan') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="pesan.php">
-                        <i class="bi bi-bar-chart-steps"></i>
-                        <span>Data Hasil Akhir</span>
+                    } ?>" href="list-alternatif.php">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Preset Bobot</span>
                     </a>
                 </li>
 

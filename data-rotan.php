@@ -64,15 +64,14 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
             <table id="dataTable" class="table table-striped table-bordered">
                 <thead>
                     <tr align="center">
-                        <th>No</th>
+                        <th width="5%">No</th>
                         <th>Jenis Rotan</th>
                         <th>Ukuran</th>
-                        <th>Harga AB (IDR)</th>
-                        <th>Harga BC (IDR)</th>
-                        <th>Harga CD (IDR)</th>
+                        <th>Kualitas</th>
+                        <th>Harga</th>
+                        <th>Minimal Pembelian</th>
                         <th>Ketersediaan Stok</th>
-                        <th>Minimal Pemesanan</th>
-                        <th>Aksi</th>
+                        <th width="10%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,11 +82,10 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                             data_rotan.id_rotan,
                             jenis_rotan.nama_jenis AS jenis_rotan,
                             ukuran_rotan.ukuran,
-                            data_rotan.harga_ab,
-                            data_rotan.harga_bc,
-                            data_rotan.harga_cd,
-                            data_rotan.stok,
-                            data_rotan.minimal_pembelian
+                            data_rotan.kualitas,
+                            data_rotan.harga,
+                            data_rotan.minimal_pembelian,
+                            data_rotan.stok
                         FROM 
                             data_rotan
                         JOIN 
@@ -108,22 +106,29 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                                 <td><?php echo $no; ?></td>
                                 <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
                                 <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
-                                <td><?php echo number_format($data['harga_ab'], 0, ',', '.'); ?></td>
-                                <td><?php echo number_format($data['harga_bc'], 0, ',', '.'); ?></td>
-                                <td><?php echo number_format($data['harga_cd'], 0, ',', '.'); ?></td>
+                                <td><?php echo htmlspecialchars($data['kualitas']); ?></td>
+                                <td><?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
+                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
                                 <td><?php echo htmlspecialchars($data['stok']); ?></td>
-                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?></td>
                                 <td align="center">
-                                    <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit Data"
-                                        href="edit-data-rotan.php?id=<?php echo $data['id_rotan']; ?>">
-                                        <i class="bi bi-pencil-square" style="margin-right:10px;"></i>
-                                    </a>
-                                    <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hapus Data"
-                                        href="hapus-data-rotan.php?id=<?php echo $data['id_rotan']; ?>"
-                                        onclick="return confirm('Apakah anda yakin untuk menghapus data ini?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <!-- Tombol Edit -->
+                                        <a class="btn btn-warning btn-sm d-flex align-items-center gap-1"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit Data"
+                                            href="edit-data-rotan.php?id=<?= $data['id_rotan']; ?>">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+
+                                        <!-- Tombol Hapus -->
+                                        <a class="btn btn-danger btn-sm d-flex align-items-center gap-1"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hapus Data"
+                                            href="hapus-data-rotan.php?id=<?= $data['id_rotan']; ?>"
+                                            onclick="return confirm('Apakah anda yakin untuk menghapus data ini?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
                                 </td>
+
                             </tr>
                             <?php
                         endwhile;

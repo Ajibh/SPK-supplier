@@ -78,90 +78,82 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 
 	<div class="row">
 		<div class="form-group col-xl-12">
-			<div class="card">
-				<div class="card-body">
-					<div class="profile-card pt-4 d-flex flex-column align-items-center">
-						<img src="assets/img/user.png" alt="Profile" class="rounded" />
-						<h3><?php echo $_SESSION['username']; ?></h3>
+			<div class="card shadow-xl">
+				<div class="card-body p-5">
+					<div class="text-center mb-4">
+						<img src="assets/img/user.png" alt="Profile" class="rounded-circle"
+							style="width: 100px; height: 100px; object-fit: cover;">
+						<h3 class="mt-3 mb-0"><?php echo $_SESSION['username']; ?></h3>
+						<small class="text-muted">Edit your profile information</small>
 					</div>
 
-					<?php
-					if (!$id_user) {
-						?>
-						<div class="alert alert-danger">Data tidak ada</div>
+					<?php if (!$id_user): ?>
+						<div class="alert alert-warning text-center">Data tidak ditemukan.</div>
+					<?php else: ?>
 						<?php
-					} else {
 						$data = mysqli_query($koneksi, "SELECT * FROM user WHERE id_user='$id_user'");
 						$cek = mysqli_num_rows($data);
-						if ($cek <= 0) {
+						if ($cek <= 0):
 							?>
-							<div class="alert alert-danger">Data tidak ada</div>
-							<?php
-						} else {
-							while ($d = mysqli_fetch_array($data)) {
-								?>
-								<h5 class="card-title">Edit Data Profile</h5>
-								<form action="" method="post">
-									<div class="row">
-										<div class="form-group col-md-6">
-											<label class="font-weight-bold">Username</label>
-											<input autocomplete="off" type="text" readonly required
-												value="<?php echo $d['username']; ?>" class="form-control" />
-										</div>
-
-										<div class="form-group col-md-6">
-											<label class="font-weight-bold">Password</label>
-											<input autocomplete="off" type="password" name="password" class="form-control" />
-										</div>
-
-										<div class="form-group col-md-6">
-											<label class="font-weight-bold">Ulangi Password</label>
-											<input autocomplete="off" type="password" name="password2" class="form-control" />
-										</div>
-
-										<div class="form-group col-md-6">
-											<label class="font-weight-bold">Nama</label>
-											<input autocomplete="off" type="text" name="nama" required value="<?php echo $d['nama']; ?>"
-												class="form-control" />
-										</div>
-
-										<div class="form-group col-md-8">
-											<label class="font-weight-bold">Kontak</label>
-											<input autocomplete="off" type="kontak" name="kontak" required
-												value="<?php echo $d['kontak']; ?>" class="form-control" />
-										</div>
-
-										<div class="form-group col-md-4">
-											<label class="font-weight-bold">Role</label>
-											<input type="text" class="form-control" value="<?php
-											if ($d['role'] == 1) {
-												echo 'Admin';
-											} elseif ($d['role'] == 2) {
-												echo 'User';
-											} elseif ($d['role'] == 3) {
-												echo 'Supplier';
-											} else {
-												echo 'Unknown';
-											}
-											?>" readonly />
-										</div>
-
+							<div class="alert alert-warning text-center">Data tidak ditemukan.</div>
+						<?php else: ?>
+							<?php while ($d = mysqli_fetch_array($data)): ?>
+								<form action="" method="post" class="row gy-2">
+									<div class="col-md-6">
+										<label class="form-label">Username</label>
+										<input type="text" readonly class="form-control" value="<?php echo $d['username']; ?>"
+											autocomplete="off">
 									</div>
-									<div class="card-footer text-right">
-										<button name="submit" value="submit" type="submit" class="btn btn-success btn-sm"><i
-												class="fa fa-save"></i> Update</button>
-										<button type="reset" class="btn btn-info btn-sm"><i class="fa fa-sync-alt"></i> Reset</button>
+
+									<div class="col-md-6">
+										<label class="form-label">Password</label>
+										<input type="password" name="password" class="form-control" autocomplete="off">
+									</div>
+
+									<div class="col-md-6">
+										<label class="form-label">Ulangi Password</label>
+										<input type="password" name="password2" class="form-control" autocomplete="off">
+									</div>
+
+									<div class="col-md-6">
+										<label class="form-label">Nama</label>
+										<input type="text" name="nama" required class="form-control" value="<?php echo $d['nama']; ?>"
+											autocomplete="off">
+									</div>
+
+									<div class="col-md-8">
+										<label class="form-label">Kontak</label>
+										<input type="text" name="kontak" required class="form-control"
+											value="<?php echo $d['kontak']; ?>" autocomplete="off">
+									</div>
+
+									<div class="col-md-4">
+										<label class="form-label">Role</label>
+										<input type="text" readonly class="form-control" value="<?php
+										if ($d['role'] == 1)
+											echo 'Admin';
+										elseif ($d['role'] == 2)
+											echo 'User';
+										elseif ($d['role'] == 3)
+											echo 'Supplier';
+										else
+											echo 'Unknown';
+										?>">
+									</div>
+
+									<div class="text-center mt-4">
+										<button type="submit" name="submit" class="btn btn-sm btn-primary px-4 me-2"><i class="fa fa-save"></i>
+											Simpan</button>
+										<button type="reset" class="btn btn-sm btn-secondary px-4"><i class="fa fa-sync-alt"></i>
+											Reset</button>
 									</div>
 								</form>
-								<?php
-							}
-						}
-					}
-					?>
+							<?php endwhile; ?>
+						<?php endif; ?>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>
-	</div>
 	</div>
 
 	<?php

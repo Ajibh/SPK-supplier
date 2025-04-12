@@ -33,23 +33,32 @@ $id_supplier = $supplier['id_supplier'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$id_jenis = $_POST['id_jenis'];
 	$id_ukuran = $_POST['id_ukuran'];
-	$harga_ab = $_POST['harga_ab'];
-	$harga_bc = $_POST['harga_bc'];
-	$harga_cd = $_POST['harga_cd'];
+	$kualitas = $_POST['kualitas'];
+	$harga = $_POST['harga'];
 	$minimal_pembelian = $_POST['minimal_pembelian'];
 	$stok = $_POST['stok'];
 
 	// Validasi Data
 	if (!empty($id_jenis) && !empty($id_ukuran) && !empty($minimal_pembelian) && !empty($stok)) {
-		// Input ke database
-		$query = "INSERT INTO data_rotan (id_jenis, id_ukuran, harga_ab, harga_bc, harga_cd, minimal_pembelian, stok, id_supplier) 
-                  VALUES ('$id_jenis', '$id_ukuran', '$harga_ab', '$harga_bc', '$harga_cd', '$minimal_pembelian', '$stok', '$id_supplier')";
-		$result = mysqli_query($koneksi, $query);
+		// Cek apakah data sudah ada untuk supplier yang sama
+		$cek_query = "SELECT * FROM data_rotan WHERE id_jenis = '$id_jenis' 
+                      AND id_ukuran = '$id_ukuran' AND kualitas = '$kualitas' 
+                      AND id_supplier = '$id_supplier'";
+		$cek_result = mysqli_query($koneksi, $cek_query);
 
-		if ($result) {
-			echo '<div class="alert alert-success">Data rotan berhasil ditambahkan.</div>';
+		if (mysqli_num_rows($cek_result) > 0) {
+			echo '<div class="alert alert-warning">Data rotan dengan jenis, ukuran, dan kualitas yang sama sudah ada untuk supplier ini.</div>';
 		} else {
-			echo '<div class="alert alert-danger">Gagal menambahkan data rotan.</div>';
+			// Input ke database jika belum ada
+			$query = "INSERT INTO data_rotan (id_jenis, id_ukuran, kualitas, harga, minimal_pembelian, stok, id_supplier) 
+			          VALUES ('$id_jenis', '$id_ukuran', '$kualitas', '$harga', '$minimal_pembelian', '$stok', '$id_supplier')";
+			$result = mysqli_query($koneksi, $query);
+
+			if ($result) {
+				echo '<div class="alert alert-success">Data rotan berhasil ditambahkan.</div>';
+			} else {
+				echo '<div class="alert alert-danger">Gagal menambahkan data rotan.</div>';
+			}
 		}
 	} else {
 		echo '<div class="alert alert-warning">Harap isi semua field yang diperlukan.</div>';
@@ -57,18 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php
-// Ambil data kriteria yang memiliki pilihan (ada_pilihan = 1)
-$query_kriteria = "SELECT * FROM kriteria WHERE ada_pilihan = 1";
-$result_kriteria = mysqli_query($koneksi, $query_kriteria);
-?>
+
 
 <div class="card">
 	<div class="card-body">
 		<h5 class="card-title">Form Tambah Data Rotan</h5>
 		<form action="" method="POST">
 			<div class="row mb-4">
-				<div class="col-6">
+				<div class="col-md-6">
 					<label for="id_jenis" class="form-label">Jenis Rotan</label>
 					<div class="dropdown">
 						<button class="form-control text-start" type="button" id="dropdownJenisRotan"
@@ -93,7 +98,7 @@ $result_kriteria = mysqli_query($koneksi, $query_kriteria);
 					</div>
 				</div>
 
-				<div class="col-6">
+				<div class="col-md-6">
 					<label for="id_ukuran" class="form-label">Ukuran</label>
 					<div class="dropdown">
 						<button class="form-control text-start" type="button" id="dropdownUkuranRotan"
@@ -120,68 +125,38 @@ $result_kriteria = mysqli_query($koneksi, $query_kriteria);
 			</div>
 
 			<div class="mb-4">
-				<label class="form-label">Harga Berdasarkan Kualitas (Opsional)</label>
-				<div class="row g-2">
-					<div class="col-md-4">
-						<label for="harga_ab" class="form-label">Harga AB</label>
-						<input type="number" class="form-control" id="harga_ab" name="harga_ab"
-							placeholder="Isi 0 jika tidak tersedia" required>
+				<div class="row">
+					<div class="col-md-6">
+						<label for="kualitas" class="form-label">Kualitas</label>
+						<select class="form-control" id="kualitas" name="kualitas" required>
+							<option value="" disabled selected>-- Pilih Kualitas --</option>
+							<option value="AB">AB</option>
+							<option value="BC">BC</option>
+							<option value="CD">CD</option>
+						</select>
 					</div>
-					<div class="col-md-4">
-						<label for="harga_bc" class="form-label">Harga BC</label>
-						<input type="number" class="form-control" id="harga_bc" name="harga_bc"
-							placeholder="Isi 0 jika tidak tersedia" required>
-					</div>
-					<div class="col-md-4">
-						<label for="harga_cd" class="form-label">Harga CD</label>
-						<input type="number" class="form-control" id="harga_cd" name="harga_cd"
-							placeholder="Isi 0 jika tidak tersedia" required>
+					<div class="col-md-6">
+						<label for="harga" class="form-label">Harga</label>
+						<input type="number" class="form-control" id="harga" name="harga"
+							placeholder="Harga Per Kilogram (kg)" required>
 					</div>
 				</div>
 			</div>
 
 			<div class="row mb-4">
 				<div class="col-md-6">
-					<label for="minimal_pembelian" class="form-label">Minimal Pembelian</label>
-					<select class="form-control" id="minimal_pembelian" name="minimal_pembelian" required>
-						<option value="">-- Pilih Minimal Pembelian --</option>
-						<?php
-						// Ambil data distinct dari kolom minimal_pembelian pada tabel data_rotan
-						$query_minimal = "SELECT DISTINCT minimal_pembelian FROM data_rotan WHERE minimal_pembelian IS NOT NULL";
-						$result_minimal = mysqli_query($koneksi, $query_minimal);
-
-						// Tampilkan sebagai option pada select
-						while ($row = mysqli_fetch_assoc($result_minimal)) {
-							echo '<option value="' . $row['minimal_pembelian'] . '">' . $row['minimal_pembelian'] . '</option>';
-						}
-						?>
-					</select>
+					<label for="minimal_pembelian" class="form-label">Minimal Pembelian (Kg)</label>
+					<input type="number" class="form-control" id="minimal_pembelian" name="minimal_pembelian"
+						placeholder="Minimal Pembelian dalam Kilogram" required>
 				</div>
 
 				<div class="col-md-6">
-					<label for="stok" class="form-label">Ketersediaan Stok</label>
-					<select class="form-control" id="stok" name="stok" required>
-						<option value="">-- Pilih Ketersediaan Stok --</option>
-						<?php
-						// Ambil nilai enum dari kolom stok pada tabel data_rotan
-						$query_enum = "SHOW COLUMNS FROM data_rotan LIKE 'stok'";
-						$result_enum = mysqli_query($koneksi, $query_enum);
-						$row_enum = mysqli_fetch_assoc($result_enum);
-
-						// Extract nilai enum
-						preg_match("/^enum\('(.*)'\)$/", $row_enum['Type'], $matches);
-						$enum_values = explode("','", $matches[1]);
-
-						// Tampilkan sebagai option pada select
-						foreach ($enum_values as $value) {
-							echo '<option value="' . $value . '">' . $value . '</option>';
-						}
-						?>
-					</select>
+					<label for="stok" class="form-label"> Stok (Kg)</label>
+					<input type="number" class="form-control" id="stok" name="stok" required>
 				</div>
 			</div>
 
-			<button type="submit" class="btn btn-primary btn-sm">Simpan Data Rotan</button>
+			<button type="submit" class="btn btn-primary btn-sm">Simpan</button>
 		</form>
 	</div>
 </div>

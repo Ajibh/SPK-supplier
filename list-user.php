@@ -79,15 +79,22 @@ endif;
 								?>
 							</td>
 							<td>
-								<div role="group">
-									<a data-toggle="tooltip" data-placement="bottom" title="Edit Data"
-										href="edit-user.php?id=<?php echo $data['id_user']; ?>"><i
-											class="bi bi-pencil-square" style="margin-right:10px;"></i></a>
-									<a data-toggle="tooltip" data-placement="bottom" title="Hapus Data"
-										href="hapus-user.php?id=<?php echo $data['id_user']; ?>"
-										onclick="return confirm ('Apakah anda yakin untuk menghapus data ini')"><i
-											class="bi bi-trash"></i></a>
+								<div class="d-flex gap-2 justify-content-center">
+									<!-- Tombol Edit -->
+									<a href="edit-user.php?id=<?php echo $data['id_user']; ?>"
+										class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit Data">
+										<i class="bi bi-pencil-square"></i>
+									</a>
+
+									<!-- Tombol Hapus -->
+									<a href="hapus-user.php?id=<?php echo $data['id_user']; ?>"
+										class="btn btn-sm btn-danger" data-bs-toggle="tooltip"
+										onclick="return confirm('Apakah anda yakin untuk menghapus data ini')"
+										title="Hapus Data">
+										<i class="bi bi-trash"></i>
+									</a>
 								</div>
+
 							</td>
 						</tr>
 					<?php endwhile; ?>

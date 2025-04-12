@@ -1,0 +1,68 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const criteria = ["c1", "c2", "c3"];
+    const maxSum = 9;
+    const submitButton = document.getElementById("submit-button");
+    const errorMessage = document.getElementById("error-message");
+
+    // Fungsi untuk membuat radio button dalam bentuk tombol
+    function createRadioButtons(name) {
+        let container = document.getElementById(`group-${name}`);
+        for (let i = 1; i <= 7; i++) {
+            let input = document.createElement("input");
+            input.type = "radio";
+            input.name = name;
+            input.value = i;
+            input.id = `${name}-${i}`;
+
+            let label = document.createElement("label");
+            label.htmlFor = input.id;
+            label.textContent = i;
+
+            container.appendChild(input);
+            container.appendChild(label);
+        }
+    }
+
+    criteria.forEach(createRadioButtons);
+
+    // Fungsi untuk mendapatkan nilai terpilih
+    function getSelectedValues() {
+        let values = {};
+        criteria.forEach(name => {
+            let selected = document.querySelector(`input[name="${name}"]:checked`);
+            values[name] = selected ? parseInt(selected.value) : null;
+        });
+        return values;
+    }
+
+    // Fungsi untuk memperbarui state input
+    function updateInputs() {
+        let values = getSelectedValues();
+        let selectedCount = Object.values(values).filter(v => v !== null).length;
+        let remainingValue = maxSum - (values.c1 ?? 0) - (values.c2 ?? 0) - (values.c3 ?? 0);
+
+        // Loop untuk menyesuaikan input yang bisa dipilih
+        criteria.forEach(name => {
+            document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+                let value = parseInt(input.value);
+                let isDisabled = selectedCount === 2 && (values[name] === null && value !== remainingValue);
+
+                input.disabled = isDisabled;
+                let label = input.nextElementSibling;
+                if (isDisabled) {
+                    label.classList.add("hidden");
+                } else {
+                    label.classList.remove("hidden");
+                }
+            });
+        });
+
+        let isValid = Object.values(values).every(v => v !== null) && (values.c1 + values.c2 + values.c3 === maxSum);
+        submitButton.disabled = !isValid;
+        errorMessage.textContent = isValid ? "" : "Jumlah C1 + C2 + C3 harus tepat 9.";
+    }
+
+    document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener("change", updateInputs);
+    });
+});

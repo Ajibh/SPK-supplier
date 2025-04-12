@@ -83,6 +83,45 @@ require_once('template/header.php');
 			</div>
 			<button type="submit" class="btn btn-primary btn-sm" name="submit">Cari</button>
 		</form>
+
+		<div class="container">
+    <h2>Apa yang paling penting bagi Anda?</h2>
+
+    <div class="checkbox-group">
+        <label><input type="checkbox" id="harga" onchange="hitungBobot()"> Harga Murah</label>
+        <label><input type="checkbox" id="stok" onchange="hitungBobot()"> Stok Banyak</label>
+        <label><input type="checkbox" id="minimal" onchange="hitungBobot()"> Minimal Pembelian Rendah</label>
+    </div>
+
+    <h3>Bobot yang dihitung:</h3>
+    <p>Harga: <span id="bobot_harga">0</span></p>
+    <p>Stok: <span id="bobot_stok">0</span></p>
+    <p>Minimal Pembelian: <span id="bobot_minimal">0</span></p>
+
+    <p id="hasil">Total Bobot: <span id="total_bobot">0</span></p>
+</div>
+
+<script>
+function hitungBobot() {
+    let harga = document.getElementById("harga").checked;
+    let stok = document.getElementById("stok").checked;
+    let minimal = document.getElementById("minimal").checked;
+
+    let pilihan = [harga, stok, minimal].filter(p => p).length;
+
+    let bobot = pilihan > 0 ? (1 / pilihan).toFixed(2) : 0;
+
+    document.getElementById("bobot_harga").innerText = harga ? bobot : "0";
+    document.getElementById("bobot_stok").innerText = stok ? bobot : "0";
+    document.getElementById("bobot_minimal").innerText = minimal ? bobot : "0";
+
+    let totalBobot = harga * bobot + stok * bobot + minimal * bobot;
+    document.getElementById("total_bobot").innerText = totalBobot.toFixed(2);
+    
+    // Ubah warna total jika tidak 1
+    document.getElementById("hasil").style.color = (totalBobot.toFixed(2) == 1.00) ? "green" : "red";
+}
+</script>
 	</div>
 </div>
 

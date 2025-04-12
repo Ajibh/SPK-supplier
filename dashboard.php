@@ -49,46 +49,6 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 					<div class="col-lg-3 col-md-6">
 						<div class="card info-card sales-card">
 							<div class="card-body">
-								<h5 class="card-title">Hitung Bobot AHP</h5>
-								<div class="d-flex align-items-center justify-content-between">
-									<div class="ps-3">
-										<a href="tambah-bobot.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-									</div>
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-box"></i>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<?php
-					$q = mysqli_query($koneksi, "SELECT COUNT(ada_pilihan) as banyak FROM kriteria WHERE ada_pilihan='1'");
-					$krit = mysqli_fetch_array($q);
-					if ($krit['banyak'] > 0) {
-						?>
-
-						<div class="col-lg-3 col-md-6">
-							<div class="card info-card sales-card">
-								<div class="card-body">
-									<h5 class="card-title">Data Sub Kriteria</h5>
-									<div class="d-flex align-items-center justify-content-between">
-										<div class="ps-3">
-											<a href="list-sub-kriteria.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-										</div>
-										<div class="card-icon rounded d-flex align-items-center justify-content-center">
-											<i class="bi bi-file-bar-graph-fill"></i>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-					<?php } ?>
-
-					<div class="col-lg-3 col-md-6">
-						<div class="card info-card sales-card">
-							<div class="card-body">
 								<h5 class="card-title">Data Supplier</h5>
 								<div class="d-flex align-items-center justify-content-between">
 									<div class="ps-3">
@@ -96,54 +56,6 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 									</div>
 									<div class="card-icon rounded d-flex align-items-center justify-content-center">
 										<i class="bi bi-people-fill"></i>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-lg-3 col-md-6">
-						<div class="card info-card sales-card">
-							<div class="card-body">
-								<h5 class="card-title">Data Penilaian</h5>
-								<div class="d-flex align-items-center justify-content-between">
-									<div class="ps-3">
-										<a href="list-penilaian.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-									</div>
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-person-fill-check"></i>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-lg-3 col-md-6">
-						<div class="card info-card sales-card">
-							<div class="card-body">
-								<h5 class="card-title">Data Perhitungan</h5>
-								<div class="d-flex align-items-center justify-content-between">
-									<div class="ps-3">
-										<a href="perhitungan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-									</div>
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-calculator-fill"></i>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-lg-3 col-md-6">
-						<div class="card info-card sales-card">
-							<div class="card-body">
-								<h5 class="card-title">Data Hasil Akhir</h5>
-								<div class="d-flex align-items-center justify-content-between">
-									<div class="ps-3">
-										<a href="pesan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-									</div>
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-bar-chart-steps"></i>
 									</div>
 								</div>
 							</div>

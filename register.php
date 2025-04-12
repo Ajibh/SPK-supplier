@@ -43,9 +43,6 @@ if (isset($_POST['submit'])) {
     if (!$kontak) {
         $errors[] = 'Kontak tidak boleh kosong';
     }
-    if ($role === 0) {
-        $errors[] = 'Role harus dipilih';
-    }
 
     if (empty($errors)) {
         // Cek apakah username sudah digunakan
@@ -200,17 +197,6 @@ if (isset($_POST['submit'])) {
                                         id="yourEmail" placeholder="Masukan No Hp"
                                         value="<?php echo htmlspecialchars($kontak); ?>" />
                                 </div>
-                                <div class="mb-1 w-100">
-                                    <label for="role" class="form-label">Role</label>
-                                    <select name="role" class="form-control" id="role">
-                                        <option value="">-- Pilih --</option>
-                                        <option value="customer" <?php echo ($role == 'customer') ? 'selected' : ''; ?>>
-                                            Customer</option>
-                                        <option value="supplier" <?php echo ($role == 'supplier') ? 'selected' : ''; ?>>
-                                            Supplier</option>
-                                    </select>
-                                </div>
-
                                 <button name="submit" type="submit" class="btn btn-primary btn-sm w-100 mt-3">Daftar</button>
                             </form>
                         </div>
