@@ -14,35 +14,19 @@ if (isset($_POST['submit'])):
 	$password = $_POST['password'];
 	$password2 = $_POST['password2'];
 	$nama = $_POST['nama'];
-	$kontak = $_POST['kontak'];
-	$role = $_POST['role'];
+	$email = $_POST['email'];
 
-	if (!$nama) {
-		$errors[] = 'Nama tidak boleh kosong';
-	}
-
-	if (!$kontak) {
-		$errors[] = 'kontak tidak boleh kosong';
-	}
-
-	if (!$role) {
-		$errors[] = 'Role tidak boleh kosong';
-	}
-
-	if (!$id_user) {
-		$errors[] = 'Id User salah';
-	}
 
 	if ($password && ($password != $password2)) {
 		$errors[] = 'Password harus sama keduanya';
 	}
 
 	if (empty($errors)):
-		$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama', kontak = '$kontak', role = '$role' WHERE id_user = '$id_user'");
+		$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama', email = '$email' WHERE id_user = '$id_user' ");
 
 		if ($password) {
 			$pass = sha1($password);
-			$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama',  password = '$pass', kontak = '$kontak', role = '$role' WHERE id_user = '$id_user'");
+			$update = mysqli_query($koneksi, "UPDATE user SET nama = '$nama',  password = '$pass', email = '$email' WHERE id_user = '$id_user'");
 		}
 		if ($update) {
 			redirect_to('list-user.php?status=sukses-edit');
@@ -83,51 +67,49 @@ require_once('template/header.php');
 	</div>
 <?php endif; ?>
 
-<form action="edit-user.php?id=<?php echo $id_user; ?>" method="post">
+<form action="edit-user.php?id=<?= $id_user; ?>" method="post">
 	<div class="card">
 		<div class="card-body">
 			<h5 class="card-title">Edit Data User</h5>
-			<?php
-			if (!$id_user) {
-				?>
+
+			<?php if (!$id_user): ?>
 				<div class="alert alert-danger">Data tidak ada</div>
+			<?php else: ?>
 				<?php
-			} else {
 				$data = mysqli_query($koneksi, "SELECT * FROM user WHERE id_user='$id_user'");
 				$cek = mysqli_num_rows($data);
-				if ($cek <= 0) {
-					?>
+
+				if ($cek <= 0): ?>
 					<div class="alert alert-danger">Data tidak ada</div>
-					<?php
-				} else {
-					while ($d = mysqli_fetch_array($data)) {
-						?>
+				<?php else:
+					while ($d = mysqli_fetch_array($data)): ?>
+
 						<div class="row">
-							<div class="form-group col-md-6">
+							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Username</label>
-								<input autocomplete="off" type="text" readonly required value="<?php echo $d['username']; ?>"
+								<input autocomplete="off" type="text" readonly required value="<?= $d['username']; ?>"
 									class="form-control" />
 							</div>
 
-							<div class="form-group col-md-6">
-								<label class="font-weight-bold">Password</sub></label>
+							<div class="form-group col-md-6 mb-3">
+								<label class="font-weight-bold">Password</label>
 								<input autocomplete="off" type="password" name="password" class="form-control" />
 							</div>
 
-							<div class="form-group col-md-6">
+							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Ulangi Password</label>
 								<input autocomplete="off" type="password" name="password2" class="form-control" />
 							</div>
 
-							<div class="form-group col-md-6">
+							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Nama</label>
-								<input autocomplete="off" type="text" name="nama" required value="<?php echo $d['nama']; ?>"
+								<input autocomplete="off" type="text" name="nama" required value="<?= $d['nama']; ?>"
 									class="form-control" />
 							</div>
 
-							<div class="form-group col-md-6">
+							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">E-Mail</label>
-								<input autocomplete="off" type="kontak" name="kontak" required value="<?php echo $d['kontak']; ?>"
+								<input autocomplete="off" type="email" name="email" required value="<?= $d['email']; ?>"
 									class="form-control" />
 							</div>
 
@@ -137,26 +119,22 @@ require_once('template/header.php');
 								if ($d['role'] == 1) {
 									echo 'Administrator';
 								} elseif ($d['role'] == 2) {
-									echo 'Customer';
-								} elseif ($d['role'] == 3) {
 									echo 'Supplier';
 								}
-								?>" readonly>
+								?>" readonly />
 							</div>
-
 						</div>
 					</div>
 					<div class="card-footer text-right">
-						<button name="submit" value="submit" type="submit" class="btn btn-sm">
-							Update</button>
-						<button type="reset" class="btn btn-sm">Reset</button>
+						<button name="submit" value="submit" type="submit" class="btn btn-success btn-sm">
+							<i class="fa fa-save"></i> Update
+						</button>
 					</div>
-				</div>
-				<?php
-					}
-				}
-			}
-			?>
+				<?php endwhile; ?>
+			<?php endif; ?>
+		<?php endif; ?>
+	</div>
+	</div>
 </form>
 
 <?php

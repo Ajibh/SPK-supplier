@@ -52,6 +52,7 @@ endif;
 						<th>Username</th>
 						<th>Nama</th>
 						<th>Role</th>
+						<th>Bergabung Pada</th>
 						<th width="15%">Aksi</th>
 					</tr>
 				</thead>
@@ -66,18 +67,17 @@ endif;
 						<tr align="center">
 							<td><?php echo $no; ?></td>
 							<td><?php echo $data['username']; ?></td>
-							<td><?php echo $data['nama']; ?></td>
+							<td><?php echo $data ['nama'] ?> </td>
 							<td>
 								<?php
 								if ($data['role'] == 1) {
 									echo 'Administrator';
 								} elseif ($data['role'] == 2) {
-									echo 'Customer';
-								} elseif ($data['role'] == 3) {
 									echo 'Supplier';
 								}
 								?>
 							</td>
+							<td><?php echo $data['created_at']; ?> </td>
 							<td>
 								<div class="d-flex gap-2 justify-content-center">
 									<!-- Tombol Edit -->
@@ -89,7 +89,7 @@ endif;
 									<!-- Tombol Hapus -->
 									<a href="hapus-user.php?id=<?php echo $data['id_user']; ?>"
 										class="btn btn-sm btn-danger" data-bs-toggle="tooltip"
-										onclick="return confirm('Apakah anda yakin untuk menghapus data ini')"
+										onclick="return confirm('Apakah Anda yakin ingin menghapus data user ? Semua data terkait dengan user ini akan terhapus')"
 										title="Hapus Data">
 										<i class="bi bi-trash"></i>
 									</a>

@@ -5,8 +5,8 @@ $user_role = get_role();
 if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier') {
 	$page = "Dashboard";
 	require_once('template/header.php');
-
 	?>
+	
 	<div class="pagetitle d-flex align-items-center">
 		<h1 class="me-3">Dashboard</h1>
 		<nav>

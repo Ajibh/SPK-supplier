@@ -30,25 +30,22 @@ $data_supplier = mysqli_fetch_assoc($supplier);
             <tbody>
                 <tr>
                     <th style="width: 15%;">Nama Supplier</th>
-                    <td>: <?php echo htmlspecialchars($data_supplier['nama']); ?></td>
-                </tr>
-                <tr>
-                    <th>Alamat</th>
-                    <td>: <?php echo htmlspecialchars($data_supplier['alamat']); ?></td>
+                    <td>: <?php echo htmlspecialchars($data_supplier['nama'] ?? ''); ?></td>
                 </tr>
                 <tr>
                     <th>Kontak</th>
-                    <td>: <?php echo htmlspecialchars($data_supplier['kontak']); ?></td>
+                    <td>: <?php echo htmlspecialchars($data_supplier['kontak'] ?? ''); ?></td>
                 </tr>
                 <tr>
                     <th>Email</th>
-                    <td>: <!-- <?php echo htmlspecialchars($data_supplier['email']); ?> --></td>
+                    <td>: <?php echo htmlspecialchars($data_supplier['email'] ?? ''); ?></td>
                 </tr>
                 <tr>
-                    <th class="fst-italic">Last Active</th>
-                    <td>: <!-- <?php echo htmlspecialchars($data_supplier['website']); ?> --></td>
+                    <th>Alamat</th>
+                    <td>: <?php echo htmlspecialchars($data_supplier['alamat'] ?? ''); ?></td>
                 </tr>
             </tbody>
+
         </table>
     </div>
 </div>

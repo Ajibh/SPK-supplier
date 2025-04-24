@@ -8,7 +8,7 @@ if (!isset($_SESSION['id_supplier'])) {
 }
 
 $id_supplier = $_SESSION['id_supplier'];
-
+    
 // Periksa apakah parameter id ada pada URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die('ID Rotan tidak ditemukan!');

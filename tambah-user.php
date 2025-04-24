@@ -7,30 +7,15 @@ $sukses = false;
 
 if (isset($_POST['submit'])):
 	$username = $_POST['username'];
+	$nama = $_POST['nama'];
 	$password = $_POST['password'];
 	$password2 = $_POST['password2'];
-	$nama = $_POST['nama'];
-	$kontak = $_POST['kontak'];
+	$email = $_POST['email'];
 	$role = $_POST['role'];
-
-	if (!$username) {
-		$errors[] = 'Username tidak boleh kosong';
-	}
-
-	if (!$password) {
-		$errors[] = 'Password tidak boleh kosong';
-	}
+	$errors = [];
 
 	if ($password != $password2) {
 		$errors[] = 'Password harus sama keduanya';
-	}
-
-	if (!$nama) {
-		$errors[] = 'Nama tidak boleh kosong';
-	}
-
-	if (!$kontak) {
-		$errors[] = 'kontak tidak boleh kosong';
 	}
 
 	if (!$role) {
@@ -47,15 +32,22 @@ if (isset($_POST['submit'])):
 	}
 
 	if (empty($errors)):
-		$pass = sha1($password);
-		$simpan = mysqli_query($koneksi, "INSERT INTO user (id_user, username, password, nama, kontak, role) VALUES ('', '$username', '$pass', '$nama', '$kontak', '$role')");
+		$pass = sha1($password); // Ganti ini ke password_hash() kalau mau lebih aman
+		$simpan = mysqli_query($koneksi, "INSERT INTO user (username, password, nama, email, role) VALUES ('$username', '$pass', '$nama', '$email', '$role')");
+
 		if ($simpan) {
+			$id_user = mysqli_insert_id($koneksi); // Ambil ID user terakhir
+
+			// Jika role == 2 (Supplier), masukkan ke tabel supplier juga
+			if ($role == 2) {
+				mysqli_query($koneksi, "INSERT INTO supplier (id_user, nama) VALUES ('$id_user', '$nama')");
+			}
+
 			redirect_to('list-user.php?status=sukses-baru');
 		} else {
 			$errors[] = 'Data gagal disimpan';
 		}
 	endif;
-
 endif;
 ?>
 
@@ -92,48 +84,52 @@ require_once('template/header.php');
 		<div class="card-body">
 			<h5 class="card-title">Tambah Data User</h5>
 			<div class="row">
-				<div class="form-group col-md-6">
+				<div class="form-group col-md-6 mb-3">
 					<label class="font-weight-bold">Username</label>
 					<input autocomplete="off" type="text" name="username" required class="form-control" />
 				</div>
 
-				<div class="form-group col-md-6">
-					<label class="font-weight-bold">Password</label>
-					<input autocomplete="off" type="password" name="password" required class="form-control" />
-				</div>
-
-				<div class="form-group col-md-6">
-					<label class="font-weight-bold">Ulangi Password</label>
-					<input autocomplete="off" type="password" name="password2" required class="form-control" />
-				</div>
-
-				<div class="form-group col-md-6">
+				<div class="form-group col-md-6 mb-3">
 					<label class="font-weight-bold">Nama</label>
 					<input autocomplete="off" type="text" name="nama" required class="form-control" />
 				</div>
 
-				<div class="form-group col-md-6">
-					<label class="font-weight-bold">E-Mail</label>
-					<input autocomplete="off" type="kontak" name="kontak" required class="form-control" />
+				<div class="form-group col-md-6 mb-3">
+					<label class="font-weight-bold">Password</label>
+					<input autocomplete="off" type="password" name="password" required class="form-control" />
 				</div>
 
-				<div class="form-group col-md-6">
+				<div class="form-group col-md-6 mb-3">
+					<label class="font-weight-bold">Ulangi Password</label>
+					<input autocomplete="off" type="password" name="password2" required class="form-control" />
+				</div>
+
+				<div class="form-group col-md-6 mb-3">
+					<label class="font-weight-bold">Email</label>
+					<input autocomplete="off" type="text" name="email" required class="form-control" />
+				</div>
+
+				<div class="form-group col-md-6 mb-3">
 					<label class="font-weight-bold">Role</label>
 					<select name="role" required class="form-control">
 						<option value="">--Pilih--</option>
 						<option value="1">Administrator</option>
-						<option value="2">User</option>
+						<option value="2">Supplier</option>
 					</select>
 				</div>
 			</div>
 		</div>
 		<div class="card-footer text-right">
-			<button name="submit" value="submit" type="submit" class="btn btn-success btn-sm"><i class="fa fa-save"></i>
-				Simpan</button>
-			<button type="reset" class="btn btn-info btn-sm"><i class="fa fa-sync-alt"></i> Reset</button>
+			<button name="submit" value="submit" type="submit" class="btn btn-success btn-sm">
+				<i class="fa fa-save"></i> Simpan
+			</button>
+			<button type="reset" class="btn btn-info btn-sm">
+				<i class="fa fa-sync-alt"></i> Reset
+			</button>
 		</div>
 	</div>
 </form>
+
 <?php
 require_once('template/footer.php');
 ?>

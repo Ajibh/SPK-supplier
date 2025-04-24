@@ -52,9 +52,7 @@ if (isset($_POST['submit'])):
         } else {
             $errors[] = 'Username atau password salah!';
         }
-
     endif;
-
 endif;
 ?>
 
@@ -116,12 +114,12 @@ endif;
                                     <form class="user w-75" action="" method="post">
                                         <div class="mb-3">
                                             <label for="yourUsername" class="form-label">Username</label>
-                                            <input required autocomplete="off" type="text" name="username"
+                                            <input autocomplete="off" type="text" name="username"
                                                 class="form-control" id="yourUsername" placeholder="Masukan Username">
                                         </div>
                                         <div class="mb-3">
                                             <label for="yourPassword" class="form-label">Password</label>
-                                            <input required autocomplete="off" type="password" name="password"
+                                            <input autocomplete="off" type="password" name="password"
                                                 class="form-control" id="yourPassword" placeholder="Masukan Password">
                                         </div>
                                         <div class="text-center">

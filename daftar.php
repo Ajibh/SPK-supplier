@@ -1,12 +1,6 @@
 <?php
 require_once('includes/init.php');
 
-if (isset($_SESSION['id_user']) || isset($_SESSION['username'])) {
-    // Jika sudah login, redirect ke dashboard atau halaman lain
-    header("Location: dashboard.php"); // Ganti dengan halaman yang sesuai
-    exit();
-}
-
 $errors = array();
 $username = isset($_POST['username']) ? trim($_POST['username']) : '';
 $password = isset($_POST['password']) ? trim($_POST['password']) : '';
@@ -14,8 +8,7 @@ $confirm_password = isset($_POST['confirm_password']) ? trim($_POST['confirm_pas
 $nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
 $alamat = isset($_POST['alamat']) ? trim($_POST['alamat']) : '';
 $kontak = isset($_POST['kontak']) ? trim($_POST['kontak']) : '';
-$email = isset($_POST['email']) ? trim($_POST['email']) : '';
-$role = 2; // Default role supplier
+$role = 2; // default role supplier
 
 if (!$koneksi) {
     die("Koneksi ke database gagal: " . mysqli_connect_error());
@@ -41,9 +34,6 @@ if (isset($_POST['submit'])) {
     if (!$kontak) {
         $errors[] = 'Kontak tidak boleh kosong';
     }
-    if (!$email) {
-        $errors[] = 'Email tidak boleh kosong';
-    }
 
     if (empty($errors)) {
         // Cek apakah username sudah digunakan
@@ -55,39 +45,21 @@ if (isset($_POST['submit'])) {
             $errors[] = 'Username sudah digunakan!';
         } else {
             $hashed_password = sha1($password);
-
-            // Simpan data ke tabel users
-            $queryUser = "INSERT INTO user (username, password, nama, role, created_at, updated_at) 
-                          VALUES ('$username', '$hashed_password','$nama' ,'$role', NOW(), NOW())";
+            // Simpan data ke tabel user
+            $queryUser = "INSERT INTO user (username, password, nama, kontak, alamat, role) 
+                          VALUES ('$username', '$hashed_password', '$nama', '$kontak', '$alamat', '$role')";
             $resultUser = mysqli_query($koneksi, $queryUser);
 
             if ($resultUser) {
-                // Ambil id_user yang baru dimasukkan
                 $id_user = mysqli_insert_id($koneksi);
+                $_SESSION["id_user"] = $id_user;
+                $_SESSION["username"] = $username;
+                $_SESSION["role"] = $role;
 
-                // Simpan data ke tabel supplier
-                $querySupplier = "INSERT INTO supplier (id_user, nama, email, kontak, alamat) 
-                VALUES ('$id_user', '$nama', '$email', '$kontak', '$alamat')";
-                $resultSupplier = mysqli_query($koneksi, $querySupplier);
-                if ($resultSupplier) {
-                    // Ambil id_supplier dari tabel supplier berdasarkan id_user
-                    $getSupplierId = mysqli_query($koneksi, "SELECT id_supplier FROM supplier WHERE id_user = '$id_user'");
-                    $supplierData = mysqli_fetch_assoc($getSupplierId);
-                    $id_supplier = $supplierData['id_supplier'] ?? null;
-
-                    // Simpan ke session
-                    $_SESSION["id_user"] = $id_user;
-                    $_SESSION["username"] = $username;
-                    $_SESSION["role"] = $role;
-                    $_SESSION["id_supplier"] = $id_supplier; // ← ini penting untuk akses halaman data rotan
-
-                    header("Location: dashboard.php");
-                    exit();
-                } else {
-                    $errors[] = 'Registrasi gagal di tabel supplier: ' . mysqli_error($koneksi);
-                }
+                header("Location: dashboard.php");
+                exit();
             } else {
-                $errors[] = 'Registrasi gagal di tabel user: ' . mysqli_error($koneksi);
+                $errors[] = 'Registrasi gagal: ' . mysqli_error($koneksi);
             }
         }
     }
@@ -131,34 +103,28 @@ if (isset($_POST['submit'])) {
                                         id="yourUsername" placeholder="Masukan Username"
                                         value="<?php echo htmlspecialchars($username); ?>" />
                                 </div>
-
-                                <div class="row w-100">
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="yourPassword" class="form-label small">Password</label>
-                                        <div class="input-group">
-                                            <input required autocomplete="off" type="password" name="password"
-                                                class="form-control" id="yourPassword" placeholder="Masukan Password" />
-                                            <span class="input-group-text"
-                                                onclick="togglePassword('yourPassword', 'eyeIcon1')"
-                                                style="cursor:pointer;">
-                                                <i id="eyeIcon1" class="bi bi-eye"></i>
-                                            </span>
-                                        </div>
+                                <div class="mb-1 w-100">
+                                    <label for="yourPassword" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <input required autocomplete="off" type="password" name="password"
+                                            class="form-control" id="yourPassword" placeholder="Masukan Password" />
+                                        <span class="input-group-text"
+                                            onclick="togglePassword('yourPassword', 'eyeIcon1')">
+                                            <i id="eyeIcon1" class="bi bi-eye"></i>
+                                        </span>
                                     </div>
+                                </div>
 
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="confirmPassword" class="form-label small">Konfirmasi
-                                            Password</label>
-                                        <div class="input-group">
-                                            <input required autocomplete="off" type="password" name="confirm_password"
-                                                class="form-control" id="confirmPassword"
-                                                placeholder="Konfirmasi Password" />
-                                            <span class="input-group-text"
-                                                onclick="togglePassword('confirmPassword', 'eyeIcon2')"
-                                                style="cursor:pointer;">
-                                                <i id="eyeIcon2" class="bi bi-eye"></i>
-                                            </span>
-                                        </div>
+                                <div class="mb-1 w-100">
+                                    <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
+                                    <div class="input-group">
+                                        <input required autocomplete="off" type="password" name="confirm_password"
+                                            class="form-control" id="confirmPassword"
+                                            placeholder="Konfirmasi Password" />
+                                        <span class="input-group-text"
+                                            onclick="togglePassword('confirmPassword', 'eyeIcon2')">
+                                            <i id="eyeIcon2" class="bi bi-eye"></i>
+                                        </span>
                                     </div>
                                 </div>
 
@@ -183,17 +149,9 @@ if (isset($_POST['submit'])) {
                                         value="<?php echo htmlspecialchars($kontak); ?>" />
                                 </div>
 
-                                <div class="mb-1 w-100">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input required autocomplete="off" type="email" name="email" class="form-control"
-                                        id="email" placeholder="Masukan Email"
-                                        value="<?php echo htmlspecialchars($email); ?>" />
-                                </div>
-
                                 <button name="submit" type="submit"
                                     class="btn btn-primary btn-sm w-100 mt-3">Daftar</button>
                             </form>
-
                         </div>
                     </div>
                 </div>
