@@ -1,7 +1,6 @@
-<?php require_once('includes/init.php'); ?>
-<?php cek_login($role = array(1)); ?>
+<?php require_once('includes/init.php');
+cek_login($role = array(1));
 
-<?php
 $page = "User";
 require_once('template/header.php');
 ?>

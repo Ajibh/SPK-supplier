@@ -138,11 +138,11 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="<?php if ($page == 'Priset Bobot') {
+                    <a class="<?php if ($page == 'Preset Bobot') {
                         echo 'nav-link';
                     } else {
                         echo 'nav-link collapsed';
-                    } ?>" href="list-alternatif.php">
+                    } ?>" href="preset-bobot.php">
                         <i class="bi bi-people-fill"></i>
                         <span>Preset Bobot</span>
                     </a>

@@ -1,6 +1,7 @@
 <?php
 require_once('includes/init.php');
 cek_login($role = array(1));
+
 $page = "Kriteria";
 require_once('template/header.php');
 ?>

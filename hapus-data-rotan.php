@@ -1,6 +1,6 @@
 <?php
 require_once('includes/init.php');
-cek_login($role = array(3));
+cek_login($role = array(2));
 
 $ada_error = false;
 $result = '';
@@ -34,5 +34,5 @@ require_once('template/header.php');
 ?>
 <?php if ($ada_error): ?>
     <div class="alert alert-danger"><?php echo $ada_error; ?></div>
-<?php endif; ?>
-<?php require_once('template/footer.php'); ?>
+<?php endif;
+require_once('template/footer.php'); ?>
