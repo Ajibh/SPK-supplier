@@ -13,10 +13,13 @@ require_once('template/header.php');
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="index.php"><i class="bi bi-house-door"></i></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Jenis dan Ukuran Rotan</li>
+                <li class="breadcrumb-item active" aria-current="page">Data Ukuran Rotan</li>
             </ol>
         </nav>
     </div>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahUkuran">
+        <i class="bi bi-plus"></i> Tambah Data
+    </button>
 </div>
 
 <?php
@@ -54,17 +57,19 @@ if (isset($_POST['update_ukuran'])) {
               </div>";
     }
 }
+
+if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
+    echo '<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            Data Ukuran rotan berhasil dihapus!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
+}
 ?>
 
 <!-- Tabel Ukuran Rotan -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title m-0">Ukuran Rotan</h5>
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahUkuran">
-                <i class="bi bi-plus"></i> Tambah Data
-            </button>
-        </div>
+        <h5 class="card-title text-center m-0">Data Ukuran Rotan</h5>
         <div class="table-responsive mt-3">
             <table id="ukuranRotanTable" class="table table-striped table-bordered">
                 <thead>
@@ -92,10 +97,12 @@ if (isset($_POST['update_ukuran'])) {
                                     </button>
 
                                     <!-- Tombol Hapus -->
-                                    <button class="btn btn-danger btn-sm d-flex align-items-center gap-1"
-                                        data-bs-toggle="modal" data-bs-target="#modalHapusUkuran<?= $row['id_ukuran']; ?>">
+                                    <a href="hapus-ukuran-rotan.php?id=<?php echo $row['id_ukuran']; ?>"
+                                        class="btn btn-sm btn-danger" data-bs-toggle="tooltip"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus data ukuran rotan ini?')"
+                                        title="Hapus Data">
                                         <i class="bi bi-trash"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </td>
 

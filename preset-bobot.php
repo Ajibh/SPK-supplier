@@ -56,10 +56,11 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
 ?>
 
 <!-- Tabel Preset Bobot -->
-<div class="card mt-3">
+<div class="card">
     <div class="card-body">
-        <h5 class="card-title text-center">Daftar Preset Bobot</h5>
-        <table id="dataTable" class="table table-bordered">
+        <h5 class="card-title text-center m-0">Daftar Preset Bobot</h5>
+        <div class="table-responsive">
+        <table id="dataTable" class="table table-striped table-bordered">
             <thead>
                 <tr>
                     <th width="5%">No</th>
@@ -110,6 +111,7 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                 <?php endwhile; ?>
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 

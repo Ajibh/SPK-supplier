@@ -5,25 +5,24 @@
 $ada_error = false;
 $result = '';
 
-$id_kriteria = (isset($_GET['id'])) ? trim($_GET['id']) : '';
+$id_ukuran = (isset($_GET['id'])) ? trim($_GET['id']) : '';
 
-if (!$id_kriteria) {
+if (!$id_ukuran) {
 	$ada_error = 'Maaf, data tidak dapat diproses.';
 } else {
-	$query = mysqli_query($koneksi, "SELECT * FROM kriteria WHERE id_kriteria = '$id_kriteria'");
+	$query = mysqli_query($koneksi, "SELECT * FROM ukuran_rotan WHERE id_ukuran = '$id_ukuran'");
 	$cek = mysqli_num_rows($query);
 
 	if ($cek <= 0) {
 		$ada_error = 'Maaf, data tidak dapat diproses.';
 	} else {
-		mysqli_query($koneksi, "DELETE FROM kriteria WHERE id_kriteria = '$id_kriteria';");
-		mysqli_query($koneksi, "DELETE FROM sub_kriteria WHERE id_kriteria = '$id_kriteria';");
-		redirect_to('list-kriteria.php?status=sukses-hapus');
+		mysqli_query($koneksi, "DELETE FROM ukuran_rotan WHERE id_ukuran = '$id_ukuran';");
+		redirect_to('ukuran-rotan.php?status=sukses-hapus');
 	}
 }
 ?>
 <?php
-$page = "Kriteria";
+$page = "Ukuran Rotan";
 require_once ('template/header.php');
 ?>
 <?php if ($ada_error): ?>
@@ -31,4 +30,3 @@ require_once ('template/header.php');
 <?php endif; ?>
 <?php
 require_once ('template/footer.php');
-?>

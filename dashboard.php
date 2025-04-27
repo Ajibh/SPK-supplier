@@ -6,7 +6,7 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 	$page = "Dashboard";
 	require_once('template/header.php');
 	?>
-	
+
 	<div class="pagetitle d-flex align-items-center">
 		<h1 class="me-3">Dashboard</h1>
 		<nav>
@@ -33,13 +33,45 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 					<div class="col-lg-3 col-md-6">
 						<div class="card info-card sales-card">
 							<div class="card-body">
-								<h5 class="card-title">Data Kriteria</h5>
+								<h5 class="card-title">Data Jenis Rotan</h5>
 								<div class="d-flex align-items-center justify-content-between">
 									<div class="ps-3">
-										<a href="list-kriteria.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
+										<a href="jenis-rotan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
 									</div>
 									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-file-bar-graph"></i>
+										<i class="bi bi-tags"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-3 col-md-6">
+						<div class="card info-card sales-card">
+							<div class="card-body">
+								<h5 class="card-title">Data Ukuran Rotan</h5>
+								<div class="d-flex align-items-center justify-content-between">
+									<div class="ps-3">
+										<a href="ukuran-rotan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
+									</div>
+									<div class="card-icon rounded d-flex align-items-center justify-content-center">
+										<i class="bi bi-aspect-ratio"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-3 col-md-6">
+						<div class="card info-card sales-card">
+							<div class="card-body">
+								<h5 class="card-title">Preset Bobot SAW</h5>
+								<div class="d-flex align-items-center justify-content-between">
+									<div class="ps-3">
+										<a href="preset-bobot.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
+									</div>
+									<div class="card-icon rounded d-flex align-items-center justify-content-center">
+										<i class="bi bi-sliders"></i>
 									</div>
 								</div>
 							</div>
@@ -56,93 +88,6 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 									</div>
 									<div class="card-icon rounded d-flex align-items-center justify-content-center">
 										<i class="bi bi-people-fill"></i>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<?php
-					$q = mysqli_query($koneksi, "SELECT COUNT(ada_pilihan) as banyak FROM kriteria WHERE ada_pilihan='1'");
-					$krit = mysqli_fetch_array($q);
-					if ($krit['banyak'] == 0) {
-						?>
-
-						<div class="col-lg-3 col-md-6">
-							<div class="card info-card sales-card">
-								<div class="card-body">
-									<h5 class="card-title">Data User</h5>
-									<div class="d-flex align-items-center justify-content-between">
-										<div class="ps-3">
-											<a href="list-user.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-										</div>
-										<div class="card-icon rounded d-flex align-items-center justify-content-center">
-											<i class="bi bi-person-square"></i>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-					<?php } ?>
-				</div>
-			</div>
-		</section>
-
-
-
-		<?php
-	} elseif ($user_role == 'customer') {
-		?>
-		<div class="alert alert-info alert-dismissible fade show" role="alert">
-			Selamat Datang <span class="text-uppercase"><b><?php echo $_SESSION['username']; ?>!</b></span>.
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-		<section class="section dashboard">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-4 col-md-6 mb-4">
-						<div class="card info-card sales-card">
-							<div class="card-body">
-								<h5 class="card-title">Cari Rotan</h5>
-								<div class="d-flex align-items-center">
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-envelope-fill"></i>
-									</div>
-									<div class="ps-3">
-										<a href="input-jenis-rotan-kualitas.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4">
-						<div class="card info-card sales-card">
-							<div class="card-body">
-								<h5 class="card-title">Data Hasil Akhir</h5>
-								<div class="d-flex align-items-center">
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-envelope-fill"></i>
-									</div>
-									<div class="ps-3">
-										<a href="pesan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4">
-						<div class="card info-card sales-card">
-							<div class="card-body">
-								<h5 class="card-title">Profile</h5>
-								<div class="d-flex align-items-center">
-									<div class="card-icon rounded d-flex align-items-center justify-content-center">
-										<i class="bi bi-person-circle"></i>
-									</div>
-									<div class="ps-3">
-										<a href="list-profile.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
 									</div>
 								</div>
 							</div>
@@ -171,7 +116,7 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 										<i class="bi bi-box-seam"></i>
 									</div>
 									<div class="ps-3">
-										<a href="input-data-rotan.php" class="text-muted small pt-2 ps-1">Input Data</a>
+										<a href="data-rotan.php" class="text-muted small pt-2 ps-1">Lihat Data</a>
 									</div>
 								</div>
 							</div>

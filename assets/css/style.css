@@ -293,7 +293,7 @@ h6 {
 /* Alerts */
 .alert-heading {
   font-weight: 500;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 15px;
 }
 
@@ -305,10 +305,6 @@ h6 {
 .btn-sm {
   font-size: 11px;
   border: none;
-}
-
-.btn-sm:hover{
-  background-color:#35A29F;
 }
 
 .btn-close:focus {

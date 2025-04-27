@@ -110,7 +110,7 @@
                     } else {
                         echo 'nav-link collapsed';
                     } ?>" href="jenis-rotan.php">
-                        <i class="bi bi-file-bar-graph"></i>
+                        <i class="bi bi-tags"></i>
                         <span>Jenis Rotan</span>
                     </a>
                 </li>
@@ -121,8 +121,19 @@
                     } else {
                         echo 'nav-link collapsed';
                     } ?>" href="ukuran-rotan.php">
-                        <i class="bi bi-file-bar-graph"></i>
+                        <i class="bi bi-aspect-ratio"></i>
                         <span>Ukuran Rotan</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="<?php if ($page == 'Preset Bobot') {
+                        echo 'nav-link';
+                    } else {
+                        echo 'nav-link collapsed';
+                    } ?>" href="preset-bobot.php">
+                        <i class="bi bi-sliders"></i>
+                        <span>Preset Bobot</span>
                     </a>
                 </li>
 
@@ -137,16 +148,6 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'Preset Bobot') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="preset-bobot.php">
-                        <i class="bi bi-people-fill"></i>
-                        <span>Preset Bobot</span>
-                    </a>
-                </li>
 
                 <?php
             } elseif ($user_role == 'supplier') {
@@ -162,19 +163,6 @@
             ?>
 
             <li class="nav-heading">Manajemen User</li>
-
-            <?php if ($user_role == 'customer') { ?>
-                <li class="nav-item">
-                    <a class="<?php if ($page == 'panduan') {
-                        echo 'nav-link';
-                    } else {
-                        echo 'nav-link collapsed';
-                    } ?>" href="panduan.php">
-                        <i class="bi bi-person-square"></i>
-                        <span>Panduan</span>
-                    </a>
-                </li>
-            <?php } ?>
 
             <?php if ($user_role == 'admin') { ?>
                 <li class="nav-item">
@@ -195,7 +183,7 @@
                 } else {
                     echo 'nav-link collapsed';
                 } ?>" href="list-profile.php">
-                    <i class="bi bi-person-circle"></i>
+                    <i class="bi bi-person-gear"></i>
                     <span>Data Profile</span>
                 </a>
             </li>

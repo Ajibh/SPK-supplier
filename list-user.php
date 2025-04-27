@@ -42,7 +42,7 @@ endif;
 
 <div class="card">
 	<div class="card-body">
-		<h5 class="card-title"></h5>
+		<h5 class="card-title m-0"></h5>
 		<div class="table-responsive">
 			<table id="dataTable" class="table table-striped table-bordered" width="100%" cellspacing="0">
 				<thead>

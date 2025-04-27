@@ -12,7 +12,7 @@ require_once('template/header.php');
 		<nav>
 			<ol class="breadcrumb mb-0">
 				<li class="breadcrumb-item"><a href="index.php"><i class="bi bi-house-door"></i></a></li>
-				<li class="breadcrumb-item active" aria-current="page">Data Supplier</li>
+				<li class="breadcrumb-item active" aria-current="page">Daftar Supplier</li>
 			</ol>
 		</nav>
 	</div>
@@ -40,7 +40,7 @@ endif;
 
 <div class="card">
 	<div class="card-body">
-		<h5 class="card-title"></h5>
+		<h5 class="card-title text-center m-0">Daftar Supplier</h5>
 		<div class="table-responsive">
 			<table id="dataTable" class="table table-striped table-bordered" width="100%" cellspacing="0">
 				<thead>
