@@ -17,7 +17,7 @@ require_once('template/header.php');
 		</nav>
 	</div>
 
-	<a href="tambah-user.php" class="btn btn-success btn-sm">Tambah Data </a>
+	<a href="tambah-user.php" class="btn btn-primary btn-sm">+ Tambah User </a>
 </div>
 
 <?php

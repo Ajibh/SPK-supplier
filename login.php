@@ -115,12 +115,12 @@ endif;
                                         <div class="mb-3">
                                             <label for="yourUsername" class="form-label">Username</label>
                                             <input autocomplete="off" type="text" name="username"
-                                                class="form-control" id="yourUsername" placeholder="Masukan Username">
+                                                class="form-control" id="yourUsername" placeholder="Masukan Username" required>
                                         </div>
                                         <div class="mb-3">
                                             <label for="yourPassword" class="form-label">Password</label>
                                             <input autocomplete="off" type="password" name="password"
-                                                class="form-control" id="yourPassword" placeholder="Masukan Password">
+                                                class="form-control" id="yourPassword" placeholder="Masukan Password" required>
                                         </div>
                                         <div class="text-center">
                                             <button name="submit" type="submit"

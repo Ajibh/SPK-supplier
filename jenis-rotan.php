@@ -73,7 +73,7 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
     <div class="card-body">
         <h5 class="card-title text-center">Data Jenis Rotan</h5>
         <div class="table-responsive">
-            <table id="jenisRotanTable" class="table table-striped table-bordered">
+            <table id="dataTable" class="table table-striped table-bordered">
                 <thead>
                     <tr align="center">
                         <th width="5%">No</th>
@@ -176,11 +176,5 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function () {
-        $('#jenisRotanTable').DataTable();
-    });
-</script>
 
 <?php require_once('template/footer.php'); ?>

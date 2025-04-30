@@ -29,7 +29,7 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
             </ol>
         </nav>
     </div>
-    <a href="input-data-rotan.php" class="btn btn-success btn-sm">
+    <a href="tambah-data-rotan.php" class="btn btn-success btn-sm">
         <i class="bi bi-plus-circle"></i> Tambah Data
     </a>
 </div>

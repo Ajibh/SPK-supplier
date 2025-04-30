@@ -93,7 +93,6 @@ $data_supplier = mysqli_fetch_assoc($supplier);
                         data_rotan.id_rotan ASC
                 ");
 
-
                     if (mysqli_num_rows($query) > 0):
                         while ($data = mysqli_fetch_array($query)):
                             $no++;

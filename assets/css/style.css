@@ -13,7 +13,7 @@
 }
 
 body {
-  font-family: "Montserrat", sans-serif;
+  font-family: "Poppins", sans-serif;
   background: #eceef5;
   color: #071952;
 }
@@ -1065,6 +1065,10 @@ h6 {
 .dashboard .top-selling img {
   border-radius: 5px;
   max-width: 60px;
+}
+
+#dataTable thead th {
+  text-align: center;
 }
 
 /*--------------------------------------------------------------
