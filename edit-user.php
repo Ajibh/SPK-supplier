@@ -92,6 +92,12 @@ require_once('template/header.php');
 							</div>
 
 							<div class="form-group col-md-6 mb-3">
+								<label class="font-weight-bold">Nama</label>
+								<input autocomplete="off" type="text" name="nama" required value="<?= $d['nama']; ?>"
+									class="form-control" />
+							</div>
+
+							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Password</label>
 								<input autocomplete="off" type="password" name="password" class="form-control" />
 							</div>
@@ -99,12 +105,6 @@ require_once('template/header.php');
 							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Ulangi Password</label>
 								<input autocomplete="off" type="password" name="password2" class="form-control" />
-							</div>
-
-							<div class="form-group col-md-6 mb-3">
-								<label class="font-weight-bold">Nama</label>
-								<input autocomplete="off" type="text" name="nama" required value="<?= $d['nama']; ?>"
-									class="form-control" />
 							</div>
 
 							<div class="form-group col-md-6 mb-3">
