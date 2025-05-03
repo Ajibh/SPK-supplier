@@ -56,8 +56,8 @@ $data_supplier = mysqli_fetch_assoc($supplier);
         <div class="table-responsive">
             <table id="dataTable" class="table table-striped table-bordered">
                 <thead>
-                    <tr align="center">
-                        <th>No</th>
+                    <tr>
+                        <th width="5%">No</th>
                         <th>Jenis Rotan</th>
                         <th>Ukuran</th>
                         <th>Kualitas</th>
@@ -105,7 +105,7 @@ $data_supplier = mysqli_fetch_assoc($supplier);
                                 <td>Rp. <?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
                                 <td><?php echo htmlspecialchars($data['stok']); ?> Kg</td>
                                 <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
-                                <td>
+                                <td class="fst-italic">
                                     <?php
                                     if (!empty($data['updated_at'])) {
                                         echo date('d-m-Y H:i:s', strtotime($data['updated_at']));

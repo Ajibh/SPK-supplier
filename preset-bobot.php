@@ -60,9 +60,9 @@ endif;
                     <tr>
                         <th width="5%">No</th>
                         <th>Nama Preset</th>
-                        <th>Harga</th>
-                        <th>Stok</th>
-                        <th>Minimal Pembelian</th>
+                        <th width="15%">Harga</th>
+                        <th width="15%">Stok</th>
+                        <th width="15%">Min. Pembelian</th>
                         <th>Status</th>
                         <th>Aksi</th>
                     </tr>
@@ -74,11 +74,11 @@ endif;
                     $result = mysqli_query($koneksi, $query);
                     while ($row = mysqli_fetch_assoc($result)): ?>
                         <tr>
-                            <td><?= $no++; ?></td>
+                            <td align="center"><?= $no++; ?></td>
                             <td><?= htmlspecialchars($row['nama_preset']) ?></td>
-                            <td><?= $row['harga'] ?></td>
-                            <td><?= $row['stok'] ?></td>
-                            <td><?= $row['minimal_pembelian'] ?></td>
+                            <td align="center"><?= $row['harga'] ?></td>
+                            <td align="center"><?= $row['stok'] ?></td>
+                            <td align="center"><?= $row['minimal_pembelian'] ?></td>
                             <td><?= $row['status'] ?></td>
                             <td>
                                 <div class="d-flex gap-2 justify-content-center">

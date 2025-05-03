@@ -203,6 +203,24 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
 
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <label for="preset_bobot" class="form-label">Preset Bobot</label>
+                            <select name="preset_bobot" id="preset_bobot" class="form-control">
+                                <option value="">-- Apa yang anda inginkan? --</option>
+                                <?php
+                                $query_preset = "SELECT id_preset, nama_preset FROM preset_bobot WHERE status = 'aktif'";
+                                $result_preset = mysqli_query($koneksi, $query_preset);
+                                while ($row = mysqli_fetch_assoc($result_preset)):
+                                    ?>
+                                    <option value="<?= $row['id_preset']; ?>" <?= isset($_POST['preset_bobot']) && $_POST['preset_bobot'] == $row['id_preset'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($row['nama_preset']); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-center">
                         <button type="submit" class="btn btn-primary btn-sm mt-3" name="submit">Cari
                             Rekomendasi</button>
