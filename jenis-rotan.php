@@ -1,11 +1,11 @@
 <?php
+ob_start(); // Memulai output buffering
 require_once('includes/init.php');
 cek_login($role = array(1));
 
 $page = "Jenis Rotan";
 require_once('template/header.php');
 ?>
-
 
 <div class="d-sm-flex align-items-center justify-content-between">
     <div class="pagetitle d-flex align-items-center">
@@ -25,48 +25,90 @@ require_once('template/header.php');
 <?php
 // Fungsi Tambah Data Jenis Rotan
 if (isset($_POST['tambah_jenis'])) {
-    $nama_jenis = $_POST['nama_jenis'];
-    $deskripsi = $_POST['deskripsi'];
-    $query = "INSERT INTO jenis_rotan (nama_jenis, deskripsi) VALUES ('$nama_jenis', '$deskripsi')";
-    if (mysqli_query($koneksi, $query)) {
-        echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-                Data Jenis Rotan Berhasil Ditambahkan.
-                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-              </div>";
+    $nama_jenis = mysqli_real_escape_string($koneksi, trim($_POST['nama_jenis']));
+
+    // Validasi: Cek apakah nama jenis sudah ada
+    $cek_nama = mysqli_query($koneksi, "SELECT id_jenis FROM jenis_rotan WHERE nama_jenis = '$nama_jenis'");
+    if (mysqli_num_rows($cek_nama) > 0) {
+        header('Location: jenis-rotan.php?status=nama-sama');
+        exit;
     } else {
-        echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                Gagal Menambah Data Jenis Rotan.
-                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-              </div>";
+        // Jika validasi lolos, simpan data
+        $query = "INSERT INTO jenis_rotan (nama_jenis) VALUES ('$nama_jenis')";
+        if (mysqli_query($koneksi, $query)) {
+            header('Location: jenis-rotan.php?status=sukses-tambah');
+        } else {
+            header('Location: jenis-rotan.php?status=gagal-tambah');
+        }
+        exit;
     }
 }
 
 // Fungsi Update Data Jenis Rotan
 if (isset($_POST['update_jenis'])) {
-    $id_jenis = $_POST['id_jenis'];
-    $nama_jenis = $_POST['nama_jenis'];
-    $deskripsi = $_POST['deskripsi'];
-    $query = "UPDATE jenis_rotan SET nama_jenis='$nama_jenis', deskripsi='$deskripsi' WHERE id_jenis='$id_jenis'";
-    if (mysqli_query($koneksi, $query)) {
-        echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-                Data Jenis Rotan Berhasil Diupdate.
-                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-              </div>";
+    $id_jenis = intval($_POST['id_jenis']);
+    $nama_jenis = mysqli_real_escape_string($koneksi, trim($_POST['nama_jenis']));
+
+    // Validasi: Cek apakah nama jenis sudah ada di data lain
+    $cek_nama = mysqli_query($koneksi, "SELECT id_jenis FROM jenis_rotan WHERE nama_jenis = '$nama_jenis' AND id_jenis != '$id_jenis'");
+    if (mysqli_num_rows($cek_nama) > 0) {
+        header('Location: jenis-rotan.php?status=nama-sama');
+        exit;
     } else {
-        echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                Gagal Mengupdate Data Jenis Rotan.
-                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-              </div>";
+        // Jika validasi lolos, update data
+        $query = "UPDATE jenis_rotan SET nama_jenis = '$nama_jenis' WHERE id_jenis = '$id_jenis'";
+        if (mysqli_query($koneksi, $query)) {
+            header('Location: jenis-rotan.php?status=sukses-edit');
+        } else {
+            header('Location: jenis-rotan.php?status=gagal-edit');
+        }
+        exit;
     }
 }
 
-if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
-    echo '<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-            Data jenis rotan berhasil dihapus!
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>';
-}
+
+$status = isset($_GET['status']) ? $_GET['status'] : '';
+$msg = '';
+$type = ''; // success atau danger
+
+switch ($status):
+    case 'sukses-tambah':
+        $msg = 'Data Jenis Rotan Berhasil Ditambahkan.';
+        $type = 'success';
+        break;
+    case 'sukses-edit':
+        $msg = 'Data Jenis Rotan Berhasil Diupdate.';
+        $type = 'success';
+        break;
+    case 'sukses-hapus':
+        $msg = 'Data Jenis Rotan Berhasil Dihapus.';
+        $type = 'success';
+        break;
+    case 'nama-sama':
+        $msg = 'Nama Jenis Rotan sudah ada! Silakan gunakan nama lain.';
+        $type = 'danger';
+        break;
+    case 'gagal-tambah':
+        $msg = 'Gagal Menambah Data Jenis Rotan.';
+        $type = 'danger';
+        break;
+    case 'gagal-edit':
+        $msg = 'Gagal Mengupdate Data Jenis Rotan.';
+        $type = 'danger';
+        break;
+    case 'gagal-hapus':
+        $msg = 'Gagal Menghapus Data karena masih digunakan di tabel lain.';
+        $type = 'danger';
+        break;
+endswitch;
+
+if (!empty($msg)):
 ?>
+<div class="alert alert-<?= $type ?> alert-dismissible fade show mt-3" role="alert">
+    <?= $msg ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
 
 <!-- Tabel Jenis Rotan -->
 <div class="card mb-4">
@@ -78,7 +120,6 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                     <tr align="center">
                         <th width="5%">No</th>
                         <th width="25%">Nama Jenis</th>
-                        <th>Deskripsi</th>
                         <th width="15%">Aksi</th>
                     </tr>
                 </thead>
@@ -91,7 +132,6 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                         <tr>
                             <td align="center"><?= $no++; ?></td>
                             <td><?= $row['nama_jenis']; ?></td>
-                            <td><?= $row['deskripsi']; ?></td>
                             <td align="center">
                                 <div class="d-flex gap-2 justify-content-center">
                                     <!-- Tombol Edit -->
@@ -125,11 +165,6 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                                                 <label>Nama Jenis Rotan</label>
                                                 <input type="text" class="form-control" name="nama_jenis"
                                                     value="<?= $row['nama_jenis']; ?>" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label>Deskripsi</label>
-                                                <textarea class="form-control" name="deskripsi"
-                                                    rows="3"><?= $row['deskripsi']; ?></textarea>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -178,3 +213,4 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
 </div>
 
 <?php require_once('template/footer.php'); ?>
+<?php ob_end_flush(); // Mengakhiri output buffering ?>

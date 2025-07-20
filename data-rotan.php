@@ -11,10 +11,6 @@ if (!isset($_SESSION['id_supplier'])) {
     die('Session id_supplier tidak ditemukan bos!');
 }
 
-if (!$koneksi) {
-    die("Koneksi gagal: " . mysqli_connect_error());
-}
-
 // Cek status pada URL untuk alert
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 ?>
@@ -29,37 +25,43 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
             </ol>
         </nav>
     </div>
-    <a href="tambah-data-rotan.php" class="btn btn-success btn-sm">
+    <a href="tambah-data-rotan.php" class="btn btn-info btn-sm">
         <i class="bi bi-plus-circle"></i> Tambah Data
     </a>
 </div>
 
-<!-- Alert Status Edit Data -->
-<?php if ($status == 'sukses-edit'): ?>
-    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-        Data rotan berhasil diupdate!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-<?php elseif ($status == 'gagal-edit'): ?>
-    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-        Gagal mengupdate data rotan!
+<?php
+$status = isset($_GET['status']) ? $_GET['status'] : '';
+$msg = '';
+$type = ''; // success atau danger
+
+switch ($status):
+    case 'sukses-edit':
+        $msg = 'Data rotan berhasil diupdate!';
+        $type = 'success';
+        break;
+    case 'gagal-edit':
+        $msg = 'Gagal mengupdate data rotan!';
+        $type = 'danger';
+        break;
+    case 'sukses-hapus':
+        $msg = 'Data rotan berhasil dihapus!';
+        $type = 'success';
+        break;
+endswitch;
+
+if (!empty($msg)):
+?>
+    <div class="alert alert-<?= $type ?> alert-dismissible fade show mt-3" role="alert">
+        <?= $msg ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
 
-<!-- Alert untuk Hapus Data -->
-<?php
-if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
-    echo '<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-            Data rotan berhasil dihapus!
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>';
-}
-?>
 
 <div class="card mt-3">
     <div class="card-body">
-        <h5 class="card-title">Daftar Rotan yang Tersedia</h5>
+        <h5 class="card-title">Daftar Rotan yang Dijual</h5>
         <div class="table-responsive">
             <table id="dataTable" class="table table-striped table-bordered">
                 <thead>
@@ -70,7 +72,7 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                         <th>Kualitas</th>
                         <th>Harga</th>
                         <th>Minimal Pembelian</th>
-                        <th>Ketersediaan Stok</th>
+                        <th>Stok</th>
                         <th width="10%">Aksi</th>
                     </tr>
                 </thead>
@@ -98,48 +100,37 @@ if (isset($_GET['status']) && $_GET['status'] == 'sukses-hapus') {
                             data_rotan.id_rotan ASC
                     ");
 
-                    if (mysqli_num_rows($query) > 0):
-                        while ($data = mysqli_fetch_array($query)):
-                            $no++;
-                            ?>
-                            <tr align="center">
-                                <td><?php echo $no; ?></td>
-                                <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
-                                <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
-                                <td><?php echo htmlspecialchars($data['kualitas']); ?></td>
-                                <td><?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
-                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
-                                <td><?php echo htmlspecialchars($data['stok']); ?></td>
-                                <td align="center">
-                                    <div class="d-flex gap-2 justify-content-center">
-                                        <!-- Tombol Edit -->
-                                        <a class="btn btn-warning btn-sm d-flex align-items-center gap-1"
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit Data"
-                                            href="edit-data-rotan.php?id=<?= $data['id_rotan']; ?>">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-
-                                        <!-- Tombol Hapus -->
-                                        <a class="btn btn-danger btn-sm d-flex align-items-center gap-1"
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hapus Data"
-                                            href="hapus-data-rotan.php?id=<?= $data['id_rotan']; ?>"
-                                            onclick="return confirm('Apakah anda yakin untuk menghapus data ini?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-
-                            </tr>
-                            <?php
-                        endwhile;
-                    else:
+                    while ($data = mysqli_fetch_array($query)):
+                        $no++;
                         ?>
-                        <tr>
-                            <td colspan="9" align="center">NO-DATA</td>
+                        <tr align="center">
+                            <td><?php echo $no; ?></td>
+                            <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
+                            <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
+                            <td><?php echo htmlspecialchars($data['kualitas']); ?></td>
+                            <td><?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
+                            <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
+                            <td><?php echo htmlspecialchars($data['stok']); ?> Kg</td>
+                            <td align="center">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <!-- Tombol Edit -->
+                                    <a class="btn btn-warning btn-sm d-flex align-items-center gap-1"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit Data"
+                                        href="edit-data-rotan.php?id=<?= $data['id_rotan']; ?>">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <!-- Tombol Hapus -->
+                                    <a class="btn btn-danger btn-sm d-flex align-items-center gap-1"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hapus Data"
+                                        href="hapus-data-rotan.php?id=<?= $data['id_rotan']; ?>"
+                                        onclick="return confirm('Apakah anda yakin untuk menghapus data ini?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
-                        <?php
-                    endif;
-                    ?>
+                        <?php endwhile; ?>
                 </tbody>
             </table>
         </div>

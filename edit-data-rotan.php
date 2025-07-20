@@ -195,7 +195,7 @@ require_once('template/header.php');
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-sm">Update Data Rotan</button>
+            <button type="submit" class="btn btn-primary btn-sm">Update</button>
         </form>
     </div>
 </div>

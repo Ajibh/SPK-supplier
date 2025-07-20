@@ -107,7 +107,7 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 		<section class="section dashboard">
 			<div class="container">
 				<div class="row">
-					<div class="col-lg-4 col-md-6 mb-4">
+					<div class="col-lg-3 col-md-6 mb-4">
 						<div class="card info-card sales-card">
 							<div class="card-body">
 								<h5 class="card-title">Data Rotan</h5>
@@ -123,7 +123,7 @@ if ($user_role == 'admin' || $user_role == 'customer' || $user_role == 'supplier
 						</div>
 					</div>
 
-					<div class="col-lg-4 col-md-6 mb-4">
+					<div class="col-lg-3 col-md-6 mb-4">
 						<div class="card info-card sales-card">
 							<div class="card-body">
 								<h5 class="card-title">Profile</h5>

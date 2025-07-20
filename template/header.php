@@ -150,7 +150,6 @@
                     </a>
                 </li>
 
-
                 <?php
             } elseif ($user_role == 'supplier') {
                 ?>

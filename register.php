@@ -41,9 +41,6 @@ if (isset($_POST['submit'])) {
     if (!$kontak) {
         $errors[] = 'Kontak tidak boleh kosong';
     }
-    if (!$email) {
-        $errors[] = 'Email tidak boleh kosong';
-    }
 
     if (empty($errors)) {
         // Cek apakah username sudah digunakan
@@ -57,8 +54,8 @@ if (isset($_POST['submit'])) {
             $hashed_password = sha1($password);
 
             // Simpan data ke tabel users
-            $queryUser = "INSERT INTO user (username, password, nama, role, created_at, updated_at) 
-                          VALUES ('$username', '$hashed_password','$nama' ,'$role', NOW(), NOW())";
+            $queryUser = "INSERT INTO user (username, password, nama, email, role, created_at, updated_at) 
+                          VALUES ('$username', '$hashed_password','$nama' ,'$email','$role', NOW(), NOW())";
             $resultUser = mysqli_query($koneksi, $queryUser);
 
             if ($resultUser) {
@@ -185,7 +182,7 @@ if (isset($_POST['submit'])) {
 
                                 <div class="mb-1 w-100">
                                     <label for="email" class="form-label">Email</label>
-                                    <input required autocomplete="off" type="email" name="email" class="form-control"
+                                    <input autocomplete="off" type="email" name="email" class="form-control"
                                         id="email" placeholder="Masukan Email"
                                         value="<?php echo htmlspecialchars($email); ?>" />
                                 </div>

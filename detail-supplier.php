@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once('includes/init.php');
 cek_login($role = array(1));
 
@@ -92,43 +92,30 @@ $data_supplier = mysqli_fetch_assoc($supplier);
                     ORDER BY
                         data_rotan.id_rotan ASC
                 ");
-
-                    if (mysqli_num_rows($query) > 0):
-                        while ($data = mysqli_fetch_array($query)):
-                            $no++;
-                            ?>
-                            <tr align="center">
-                                <td><?php echo $no; ?></td>
-                                <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
-                                <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
-                                <td><?php echo htmlspecialchars($data['kualitas']); ?></td>
-                                <td>Rp. <?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
-                                <td><?php echo htmlspecialchars($data['stok']); ?> Kg</td>
-                                <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
-                                <td class="fst-italic">
-                                    <?php
-                                    if (!empty($data['updated_at'])) {
-                                        echo date('d-m-Y H:i:s', strtotime($data['updated_at']));
-                                    } else {
-                                        echo "-"; // atau boleh kamu ganti teks lain, misal: "Belum pernah diupdate"
-                                    }
-                                    ?>
-                                </td>
-
-                            </tr>
-                            <?php
-                        endwhile;
-
-                    else:
+                    while ($data = mysqli_fetch_array($query)):
+                        $no++;
                         ?>
-                        <tr>
-                            <td colspan="8" align="center">NO-DATA</td>
-                        </tr>
-                        <?php
-                    endif;
-                    ?>
-                </tbody>
+                        <tr align="center">
+                            <td><?php echo $no; ?></td>
+                            <td><?php echo htmlspecialchars($data['jenis_rotan']); ?></td>
+                            <td><?php echo htmlspecialchars($data['ukuran']); ?></td>
+                            <td><?php echo htmlspecialchars($data['kualitas']); ?></td>
+                            <td>Rp. <?php echo number_format($data['harga'], 0, ',', '.'); ?></td>
+                            <td><?php echo htmlspecialchars($data['stok']); ?> Kg</td>
+                            <td><?php echo htmlspecialchars($data['minimal_pembelian']); ?> Kg</td>
+                            <td class="fst-italic">
+                                <?php
+                                if (!empty($data['updated_at'])) {
+                                    echo date('d-m-Y H:i:s', strtotime($data['updated_at']));
+                                } else {
+                                    echo "-"; // atau boleh kamu ganti teks lain, misal: "Belum pernah diupdate"
+                                }
+                                ?>
+                            </td>
 
+                        </tr>
+                    <?php endwhile ?>
+                </tbody>
             </table>
         </div>
     </div>

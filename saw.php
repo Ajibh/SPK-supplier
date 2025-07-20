@@ -1,223 +1,202 @@
 <?php
-require_once('includes/init.php');
-cek_login($role = array(2));
+require_once('includes/konek-db.php');
 
-$page = "saw";
-require_once('template/header.php');
+// Query untuk mengambil data supplier dan perhitungan SAW
+$query = "SELECT supplier.nama AS nama_supplier, supplier.kontak, 
+          jenis_rotan.nama_jenis, ukuran_rotan.ukuran, data_rotan.harga, data_rotan.stok, data_rotan.minimal_pembelian
+          FROM data_rotan
+          JOIN supplier ON data_rotan.id_supplier = supplier.id_supplier
+          JOIN jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
+          JOIN ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran";
+$result = mysqli_query($koneksi, $query);
 
-if (!isset($_POST['lanjut'])) {
-    echo "Silahkan Mengisi Halaman Input Data Rotan yang dicari terlebih dahulu!";
-    exit;
-}
+if ($result && mysqli_num_rows($result) > 0) {
+    $data = [];
+    $max = ['harga' => 0, 'stok' => 0, 'minimal_pembelian' => 0];
 
-// Ambil ID user yang sedang login
-$id_user = $_SESSION['id_user']; // Sesuaikan dengan variabel session user ID yang digunakan
+    // Ambil data dan hitung nilai maksimum untuk normalisasi
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+        $max['harga'] = max($max['harga'], $row['harga']);
+        $max['stok'] = max($max['stok'], $row['stok']);
+        $max['minimal_pembelian'] = max($max['minimal_pembelian'], $row['minimal_pembelian']);
+    }
 
-// Ambil bobot kriteria dari database berdasarkan user yang login
-$query_bobot = "SELECT id_kriteria, bobot FROM bobot_ahp WHERE id_user = '$id_user'";
-$result_bobot = mysqli_query($koneksi, $query_bobot);
+    // Bobot kriteria (contoh: bisa diambil dari preset atau ditentukan langsung)
+    $bobot = [
+        'harga' => 0.4, // Bobot untuk harga
+        'stok' => 0.3,  // Bobot untuk stok
+        'minimal_pembelian' => 0.3 // Bobot untuk minimal pembelian
+    ];
 
-$bobot = [];
-while ($row_bobot = mysqli_fetch_assoc($result_bobot)) {
-    $bobot[$row_bobot['kriteria']] = (float) $row_bobot['bobot']; // Simpan dalam array dengan tipe float
-}
+    // Hitung nilai SAW
+    $ranking = [];
+    foreach ($data as $row) {
+        $normalisasi = [
+            'harga' => $row['harga'] / $max['harga'],
+            'stok' => $row['stok'] / $max['stok'],
+            'minimal_pembelian' => $row['minimal_pembelian'] / $max['minimal_pembelian'],
+        ];
 
-// Ambil data dari form filtering
-$id_supplier = $_POST['id_supplier'];
-$harga = $_POST['harga'];
+        $nilai_saw = (
+            $normalisasi['harga'] * $bobot['harga'] +
+            $normalisasi['stok'] * $bobot['stok'] +
+            $normalisasi['minimal_pembelian'] * $bobot['minimal_pembelian']
+        );
 
-// Ambil data supplier dari database berdasarkan hasil filter
-$data_supplier = [];
-foreach ($id_supplier as $index => $nama_supplier) {
-    $query = "SELECT supplier.id_supplier, supplier.nama AS nama_supplier, supplier.kontak, 
-                     data_rotan.minimal_pembelian, data_rotan.stok 
-              FROM data_rotan
-              JOIN supplier ON data_rotan.id_supplier = supplier.id_supplier
-              WHERE supplier.nama = '$nama_supplier'";
-
-    $result = mysqli_query($koneksi, $query);
-    if ($row = mysqli_fetch_assoc($result)) {
-        $data_supplier[] = [
-            'nama_supplier' => $row['nama_supplier'],
-            'harga' => $harga[$index],
-            'minimal_pembelian' => $row['minimal_pembelian'],
-            'stok' => $row['stok'],
-            'kontak' => isset($row['kontak']) ? $row['kontak'] : 'Tidak tersedia'
+        $ranking[] = [
+            'supplier' => $row['nama_supplier'],
+            'kontak' => $row['kontak'],
+            'nilai_asli' => [
+                'harga' => $row['harga'],
+                'stok' => $row['stok'],
+                'minimal_pembelian' => $row['minimal_pembelian'],
+            ],
+            'normalisasi' => $normalisasi,
+            'nilai' => $nilai_saw,
         ];
     }
+
+    // Urutkan berdasarkan nilai SAW
+    usort($ranking, function ($a, $b) {
+        return $b['nilai'] <=> $a['nilai'];
+    });
+} else {
+    $ranking = [];
 }
-
-// ** Normalisasi Kriteria ** (AHP)
-$max_harga = max(array_column($data_supplier, 'harga'));
-$min_harga = min(array_column($data_supplier, 'harga'));
-
-foreach ($data_supplier as &$supplier) {
-    // ** Normalisasi Harga (Lebih kecil lebih baik) **
-    $supplier['normal_harga'] = $min_harga / $supplier['harga'];
-
-    // ** Normalisasi Minimal Pembelian **
-    $supplier['normal_min_pembelian'] = ($supplier['minimal_pembelian'] == '1 kg') ? 3 :
-        (($supplier['minimal_pembelian'] == '10 kg') ? 2 : 1);
-
-    // ** Normalisasi Stok **
-    $supplier['normal_stok'] = ($supplier['stok'] == 'Tersedia Selalu') ? 3 : 1;
-}
-
-// ** Hitung Skor Akhir (SAW) **
-foreach ($data_supplier as &$supplier) {
-    $supplier['total_skor'] =
-        ($supplier['normal_harga'] * $bobot['harga']) +
-        ($supplier['normal_min_pembelian'] * $bobot['minimal_pembelian']) +
-        ($supplier['normal_stok'] * $bobot['stok']);
-}
-
-// ** Urutkan berdasarkan skor tertinggi **
-usort($data_supplier, function ($a, $b) {
-    return $b['total_skor'] <=> $a['total_skor'];
-});
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="d-sm-flex align-items-center justify-content-between">
-    <div class="pagetitle d-flex align-items-center">
-        <h1 class="me-3">Perankingan</h1>
-        <nav>
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="index.php"><i class="bi bi-house-door"></i></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Hasil Perankingan</li>
-            </ol>
-        </nav>
-    </div>
-</div>
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-<div class="card -4">
-    <h2 class="text-center">Hasil Perhitungan SPK Pemilihan Supplier</h2>
-    <!-- Tabel Data Supplier -->
-    <h4 class="mt-4">1. Data Awal Supplier</h4>
-    <table class="table table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Nama Supplier</th>
-                <th>Harga</th>
-                <th>Minimal Pembelian</th>
-                <th>Stok</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data_supplier as $supplier): ?>
-                <tr>
-                    <td><?= $supplier['nama_supplier'] ?></td>
-                    <td>Rp <?= number_format($supplier['harga'], 0, ',', '.') ?></td>
-                    <td><?= $supplier['minimal_pembelian'] ?></td>
-                    <td><?= $supplier['stok'] ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <title>SIPEKTRA | Sistem Pendukung Keputusan Pemilihan Supplier Rotan Menggunakan Metode AHP-SAW</title>
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
 
-    <!-- Tabel Normalisasi -->
-    <h4 class="mt-4">2. Normalisasi Kriteria</h4>
-    <table class="table table-bordered">
-        <thead class="table-primary">
-            <tr>
-                <th>Nama Supplier</th>
-                <th>Normalisasi Harga</th>
-                <th>Normalisasi Minimal Pembelian</th>
-                <th>Normalisasi Stok</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data_supplier as $supplier): ?>
-                <tr>
-                    <td><?= $supplier['nama_supplier'] ?></td>
-                    <td><?= round($supplier['normal_harga'], 3) ?></td>
-                    <td><?= round($supplier['normal_min_pembelian'], 3) ?></td>
-                    <td><?= round($supplier['normal_stok'], 3) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <!-- Favicons -->
+    <link href="assets/img/lambang.png" rel="icon" />
+    <link href="assets/img/lambang.png" rel="apple-touch-icon" />
 
-    <!-- Tabel Perhitungan SAW -->
-    <h4 class="mt-4">3. Perhitungan Skor Akhir SAW</h4>
-    <table class="table table-bordered">
-        <thead class="table-success">
-            <tr>
-                <th>Nama Supplier</th>
-                <th>Skor Akhir</th>
-                <th>Peringkat</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            $peringkat = 1;
-            foreach ($data_supplier as $supplier):
-                ?>
-                <tr>
-                    <td><?= $supplier['nama_supplier'] ?></td>
-                    <td><strong><?= round($supplier['total_skor'], 3) ?></strong></td>
-                    <td><strong>#<?= $peringkat++ ?></strong></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet" />
 
-</div>
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
 
+    <!-- CDN DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
-<div class="card">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mt-2">
-            <h5 class="card-title">Hasil Perankingan Supplier</h5>
-            <a href="export_excel.php" class="btn btn-sm btn-success">
-                <i class="bi bi-file-earmark-excel"></i> Export Data
-            </a>
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <script src="assets/vendor/jquery/jquery.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header fixed-top text-white shadow-md py-1" style="background-color: #071952;">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-start">
+                <a href="index.php" class="logo d-flex align-items-center">
+                    <img src="assets/img/lambang.png" alt="Logo" />
+                    <span class="d-none d-lg-block">SIPEKTRA</span>
+                </a>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="login.php" class="btn btn-custom me-2">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </a>
+            </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th width="5%">Ranking</th>
-                        <th>Nama Supplier</th>
-                        <th>Harga (Rp)</th>
-                        <th>Minimal Pembelian</th>
-                        <th>Stok</th>
-                        <th>Kontak</th> <!-- Tambahkan kolom kontak -->
-                        <th>Skor Akhir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $rank = 1;
-                    foreach ($data_supplier as $supplier):
-                        ?>
-                        <tr>
-                            <td><strong><?= $rank++; ?></strong></td>
-                            <td><?= htmlspecialchars($supplier['nama_supplier']); ?></td>
-                            <td><?= number_format($supplier['harga'], 0, ',', '.'); ?></td>
-                            <td><?= htmlspecialchars($supplier['minimal_pembelian']); ?></td>
-                            <td>
-                                <span
-                                    class="badge <?= ($supplier['stok'] == 'Tersedia Selalu') ? 'bg-success' : 'bg-warning'; ?>">
-                                    <?= htmlspecialchars($supplier['stok']); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <a href="https://wa.me/<?= ($supplier['kontak']); ?>" target="_blank"
-                                    class="btn btn-success btn-sm">
-                                    <i class="bi bi-whatsapp"></i> Hubungi
-                                </a>
-                            </td>
-                            <td><strong><?= number_format($supplier['total_skor'], 3, ',', '.'); ?></strong></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+    </header>
+    <!-- End Header -->
+
+    <div class="container mt-5 pt-5">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="mb-0">Perhitungan SAW</h5>
+            </div>
+
+            <div class="card-body">
+                <p><strong>Bobot Kriteria:</strong></p>
+                <ul>
+                    <li>Harga: <?= $bobot['harga'] * 100; ?>%</li>
+                    <li>Stok: <?= $bobot['stok'] * 100; ?>%</li>
+                    <li>Minimal Pembelian: <?= $bobot['minimal_pembelian'] * 100; ?>%</li>
+                </ul>
+
+                <?php if (!empty($ranking)): ?>
+                    <div class="table-responsive">
+                        <table id="dataTable" class="table table-bordered table-striped text-center align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Peringkat</th>
+                                    <th>Supplier</th>
+                                    <th>Kontak</th>
+                                    <th>Harga<br><small>(Asli / Normalisasi)</small></th>
+                                    <th>Stok<br><small>(Asli / Normalisasi)</small></th>
+                                    <th>Minimal Pembelian<br><small>(Asli / Normalisasi)</small></th>
+                                    <th><strong>Nilai Akhir</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($ranking as $index => $row): ?>
+                                    <tr>
+                                        <td><?= $index + 1; ?></td>
+                                        <td><?= htmlspecialchars($row['supplier']); ?></td>
+                                        <td><?= htmlspecialchars($row['kontak']); ?></td>
+                                        <td>
+                                            <?= number_format($row['nilai_asli']['harga'], 2); ?> /
+                                            <?= number_format($row['normalisasi']['harga'], 4); ?>
+                                        </td>
+                                        <td>
+                                            <?= number_format($row['nilai_asli']['stok'], 2); ?> /
+                                            <?= number_format($row['normalisasi']['stok'], 4); ?>
+                                        </td>
+                                        <td>
+                                            <?= number_format($row['nilai_asli']['minimal_pembelian'], 2); ?> /
+                                            <?= number_format($row['normalisasi']['minimal_pembelian'], 4); ?>
+                                        </td>
+                                        <td class="fw-bold text-success"><?= number_format($row['nilai'], 4); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-warning text-center mb-0" role="alert">
+                        ❌ Data tidak ditemukan.
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="card-footer text-center">
+                <a href="rekomendasi.php" class="btn btn-secondary">
+                    Kembali ke Pencarian
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
 
-<?php
-require_once('template/footer.php')
-    ?>
+    <!-- Footer -->
+    <footer class="text-white text-center py-3" style="background-color: #071952;">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 SPK Pemilihan Supplier Bahan Baku Rotan</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+</body>
+
+</html>

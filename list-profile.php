@@ -110,76 +110,83 @@ endif;
 		<div class="tab-content" id="profileTabContent">
 			<!-- Tab Edit Profile -->
 			<div class="tab-pane fade show active" id="editProfile" role="tabpanel">
-				<form action="" method="post" class="row gy-3">
+				<form action="" method="post">
 					<input type="hidden" name="id_user" value="<?= $id_user; ?>">
 					<?php
 					$userData = mysqli_query($koneksi, "
-							SELECT 
-								u.username, 
-								u.role, 
-								u.nama AS user_nama, 
-								u.email AS user_email, 
-								s.nama AS supplier_nama, 
-								s.kontak, 
-								s.email AS supplier_email, 
-								s.alamat
-							FROM user u
-							LEFT JOIN supplier s ON u.id_user = s.id_user
-							WHERE u.id_user = '$id_user'
-						");
+			SELECT 
+				u.username, 
+				u.role, 
+				u.nama AS user_nama, 
+				u.email AS user_email, 
+				s.nama AS supplier_nama, 
+				s.kontak, 
+				s.email AS supplier_email, 
+				s.alamat
+			FROM user u
+			LEFT JOIN supplier s ON u.id_user = s.id_user
+			WHERE u.id_user = '$id_user'
+		");
 					$data = mysqli_fetch_array($userData);
 					$role = $data['role'];
 					$nama = $data['user_nama'] ?? $data['supplier_nama'] ?? '';
 					?>
 
-					<div class="col-12 text-center">
-						<img src="assets/img/<?= !empty($data['foto']) ? $data['foto'] : 'user.png'; ?>" alt="Profile"
-							class="rounded-circle shadow"
-							style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #ddd;">
-						<h4 class="mt-3 mb-1"><?= htmlspecialchars($nama); ?></h4>
-						<small class="text-muted">Edit Informasi Profil-mu</small>
-					</div>
-
-					<div class="col-md-6">
-						<label class="form-label">Username</label>
-						<input type="text" class="form-control" value="<?= htmlspecialchars($data['username']); ?>"
-							readonly>
-					</div>
-
-					<div class="col-md-6">
-						<label class="form-label">Nama</label>
-						<input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($nama); ?>"
-							required>
-					</div>
-
-					<div class="col-md-6">
-						<label class="form-label">Email</label>
-						<input type="email" name="email" class="form-control"
-							value="<?= htmlspecialchars($data['user_email'] ?? $data['supplier_email'] ?? ''); ?>"
-							required>
-					</div>
-
-					<?php if ($role != 1): ?>
-						<div class="col-md-6">
-							<label class="form-label">Kontak</label>
-							<input type="text" name="kontak" class="form-control"
-								value="<?= htmlspecialchars($data['kontak'] ?? ''); ?>" required>
+					<div class="row align-items-start gy-4">
+						<!-- Foto Profil -->
+						<div class="col-md-4 text-center">
+							<img src="assets/img/<?= !empty($data['foto']) ? $data['foto'] : 'user.png'; ?>"
+								alt="Profile" class="rounded-circle shadow"
+								style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #ddd;">
+							<h4 class="mt-3 mb-1"><?= htmlspecialchars($nama); ?></h4>
+							<small class="text-muted">Edit Informasi Profil-mu</small>
 						</div>
 
-						<div class="col-12">
-							<label class="form-label">Alamat</label>
-							<input type="text" name="alamat" class="form-control"
-								value="<?= htmlspecialchars($data['alamat'] ?? ''); ?>" required>
-						</div>
-					<?php endif; ?>
+						<!-- Form Input -->
+						<div class="col-md-8">
+							<div class="row gy-3">
+								<div class="col-md-6">
+									<label class="form-label">Username</label>
+									<input type="text" class="form-control"
+										value="<?= htmlspecialchars($data['username']); ?>" readonly>
+								</div>
 
-					<div class="text-center mt-3">
-						<button type="submit" name="submit_profile" class="btn btn-primary btn-sm px-4">
-							<i class="fa fa-save"></i> Update
-						</button>
+								<div class="col-md-6">
+									<label class="form-label">Nama</label>
+									<input type="text" name="nama" class="form-control"
+										value="<?= htmlspecialchars($nama); ?>" required>
+								</div>
+
+								<div class="col-md-6">
+									<label class="form-label">Email</label>
+									<input type="email" name="email" class="form-control"
+										value="<?= htmlspecialchars($data['user_email'] ?? $data['supplier_email'] ?? ''); ?>">
+								</div>
+
+								<?php if ($role != 1): ?>
+									<div class="col-md-6">
+										<label class="form-label">Kontak</label>
+										<input type="text" name="kontak" class="form-control"
+											value="<?= htmlspecialchars($data['kontak'] ?? ''); ?>" required>
+									</div>
+									<div class="col-12">
+										<label class="form-label">Alamat</label>
+										<textarea name="alamat" class="form-control" rows="3"
+											required><?= htmlspecialchars($data['alamat'] ?? ''); ?></textarea>
+									</div>
+								<?php endif; ?>
+
+								<div class="col-12 text-end mt-3">
+									<button type="submit" name="submit_profile" class="btn btn-primary btn-sm px-4">
+										<i class="fa fa-save"></i> Update
+									</button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</form>
 			</div>
+
 
 			<!-- Tab Ubah Password -->
 			<div class="tab-pane fade" id="changePassword" role="tabpanel">

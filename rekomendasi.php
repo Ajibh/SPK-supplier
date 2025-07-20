@@ -1,66 +1,146 @@
 <?php
 require_once('includes/konek-db.php');
 
-$showResults = false; // Flag untuk menentukan apakah menampilkan hasil
-$searchResults = ''; // Variabel untuk menyimpan hasil pencarian
+$showResults = false;
+$searchResults = '';
 
-// Proses jika user men-submit form
 if (isset($_POST['submit'])) {
-    $id_jenis = $_POST['id_jenis'];
-    $id_ukuran = $_POST['id_ukuran'];
-    $kualitas = $_POST['kualitas'];
+    $id_jenis = mysqli_real_escape_string($koneksi, $_POST['id_jenis']);
+    $id_ukuran = mysqli_real_escape_string($koneksi, $_POST['id_ukuran']);
+    $kualitas = mysqli_real_escape_string($koneksi, $_POST['kualitas']);
+    $preset_bobot = mysqli_real_escape_string($koneksi, $_POST['preset_bobot']);
     $showResults = true;
 
-    // Query ambil data sesuai filter
-    $query = "SELECT supplier.nama AS nama_supplier, supplier.kontak, 
-              jenis_rotan.nama_jenis, ukuran_rotan.ukuran, data_rotan.harga
-              FROM data_rotan
-              JOIN supplier ON data_rotan.id_supplier = supplier.id_supplier
-              JOIN jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
-              JOIN ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran
-              WHERE data_rotan.id_jenis = '$id_jenis' 
-              AND data_rotan.id_ukuran = '$id_ukuran'
-              AND data_rotan.kualitas = '$kualitas'
-              AND data_rotan.harga > 0";
+    // Ambil bobot dari preset yang dipilih
+    $query_bobot = "SELECT harga, stok, minimal_pembelian FROM preset_bobot WHERE id_preset = ?";
+    $stmt_bobot = mysqli_prepare($koneksi, $query_bobot);
+    mysqli_stmt_bind_param($stmt_bobot, 's', $preset_bobot);
+    mysqli_stmt_execute($stmt_bobot);
+    $result_bobot = mysqli_stmt_get_result($stmt_bobot);
+    $bobot = mysqli_fetch_assoc($result_bobot);
 
-    $result = mysqli_query($koneksi, $query);
-
-    if (mysqli_num_rows($result) > 0) {
-        ob_start(); // Mulai output buffering
-        ?>
-        <form action="saw.php" method="POST">
-            <table class="table table-striped table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th>Supplier</th>
-                        <th>Jenis Rotan</th>
-                        <th>Ukuran</th>
-                        <th>Harga</th>
-                        <th>Kontak</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['nama_supplier']); ?></td>
-                            <td><?= htmlspecialchars($row['nama_jenis']); ?></td>
-                            <td><?= htmlspecialchars($row['ukuran']); ?></td>
-                            <td><?= htmlspecialchars($row['harga']); ?></td>
-                            <td><?= htmlspecialchars($row['kontak']); ?></td>
-                            <input type="hidden" name="id_supplier[]" value="<?= htmlspecialchars($row['nama_supplier']); ?>">
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-
-            <div class="text-center mt-3">
-                <button type="submit" class="btn btn-primary" name="lanjut">Lanjut Perankingan</button>
-            </div>
-        </form>
-        <?php
-        $searchResults = ob_get_clean(); // Ambil output buffer
+    if (!$bobot) {
+        $searchResults = '<p class="text-danger text-center">❌ Preset bobot tidak ditemukan.</p>';
     } else {
-        $searchResults = '<p class="text-danger text-center">❌ Mohon maaf, data yang anda cari tidak ditemukan.</p>';
+        // Query ambil data supplier beserta alamat
+        $query = "SELECT supplier.id_supplier, supplier.nama AS nama_supplier, supplier.kontak, supplier.alamat,
+                  jenis_rotan.nama_jenis, ukuran_rotan.ukuran, data_rotan.harga, data_rotan.stok, data_rotan.minimal_pembelian
+                  FROM data_rotan
+                  JOIN supplier ON data_rotan.id_supplier = supplier.id_supplier
+                  JOIN jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
+                  JOIN ukuran_rotan ON data_rotan.id_ukuran = ukuran_rotan.id_ukuran
+                  WHERE data_rotan.id_jenis = ? 
+                  AND data_rotan.id_ukuran = ?
+                  AND data_rotan.kualitas = ?
+                  AND data_rotan.harga > 0";
+        $stmt = mysqli_prepare($koneksi, $query);
+        mysqli_stmt_bind_param($stmt, 'sss', $id_jenis, $id_ukuran, $kualitas);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if (mysqli_num_rows($result) > 0) {
+            $data = [];
+            $max = ['harga' => 0, 'stok' => 0, 'minimal_pembelian' => 0];
+            $min = ['harga' => null, 'stok' => null, 'minimal_pembelian' => null];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $data[] = $row;
+                $max['harga'] = max($max['harga'], $row['harga']);
+                $max['stok'] = max($max['stok'], $row['stok']);
+                $max['minimal_pembelian'] = max($max['minimal_pembelian'], $row['minimal_pembelian']);
+                $min['harga'] = is_null($min['harga']) ? $row['harga'] : min($min['harga'], $row['harga']);
+                $min['stok'] = is_null($min['stok']) ? $row['stok'] : min($min['stok'], $row['stok']);
+                $min['minimal_pembelian'] = is_null($min['minimal_pembelian']) ? $row['minimal_pembelian'] : min($min['minimal_pembelian'], $row['minimal_pembelian']);
+            }
+
+            // Hitung nilai SAW
+            $ranking = [];
+            foreach ($data as $row) {
+                $normalisasi = [
+                    'harga' => $min['harga'] / $row['harga'], // cost
+                    'stok' => $row['stok'] / $max['stok'], // benefit
+                    'minimal_pembelian' => $min['minimal_pembelian'] / $row['minimal_pembelian'], // cost
+                ];
+                $nilai_saw = (
+                    $normalisasi['harga'] * $bobot['harga'] +
+                    $normalisasi['stok'] * $bobot['stok'] +
+                    $normalisasi['minimal_pembelian'] * $bobot['minimal_pembelian']
+                );
+                $ranking[] = [
+                    'supplier' => $row['nama_supplier'],
+                    'kontak' => $row['kontak'],
+                    'alamat' => $row['alamat'],
+                    'nilai' => $nilai_saw,
+                ];
+            }
+
+            // Urutkan berdasarkan nilai SAW
+            usort($ranking, function ($a, $b) {
+                return $b['nilai'] <=> $a['nilai'];
+            });
+
+            // Tampilkan hasil perankingan
+            ob_start();
+            ?>
+            <div class="table-responsive">
+                <table class="table align-middle table-hover table-bordered text-center shadow-sm rounded">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Peringkat</th>
+                            <th>Supplier</th>
+                            <th>Alamat</th>
+                            <th>Kontak</th>
+                            <th>Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($ranking as $index => $row): ?>
+                            <tr<?= $index === 0 ? ' class="table-success fw-bold"' : '' ?>>
+                                <td>
+                                    <?= $index + 1; ?>
+                                    <?php if ($index === 0): ?>
+                                        <span class="badge bg-success ms-2">Terbaik</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($row['supplier']); ?></td>
+                                <td><?= htmlspecialchars($row['alamat']); ?></td>
+                                <td>
+                                    <?php
+                                    $telp = preg_replace('/[^0-9]/', '', $row['kontak']);
+                                    if ($telp):
+                                        ?>
+                                        <a href="https://wa.me/<?= $telp ?>" target="_blank"
+                                            class="btn btn-outline-success btn-sm px-2 py-1 d-inline-flex align-items-center"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Chat via WhatsApp">
+                                            <i class="bi bi-whatsapp" style="font-size:1.3em;"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                    <span class="badge bg-success ms-2" style="font-size:1em;">
+                                        <?= htmlspecialchars($row['kontak']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary" style="font-size:1em;">
+                                        <?= number_format($row['nilai'], 4); ?>
+                                    </span>
+                                </td>
+                                </tr>
+                            <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                        new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
+                });
+            </script>
+            <?php
+            $searchResults = ob_get_clean();
+        } else {
+            $searchResults = '<p class="text-danger text-center">❌ Mohon maaf, data yang anda cari tidak ditemukan.</p>';
+        }
     }
 }
 ?>
@@ -155,14 +235,12 @@ if (isset($_POST['submit'])) {
                                     <?php
                                     $query_jenis = "SELECT id_jenis, nama_jenis FROM jenis_rotan";
                                     $result_jenis = mysqli_query($koneksi, $query_jenis);
-                                    while ($row = mysqli_fetch_assoc($result_jenis)):
-                                        ?>
-                                        <li>
-                                            <a class="dropdown-item" href="#" data-value="<?= $row['id_jenis']; ?>">
-                                                <?= htmlspecialchars($row['nama_jenis']); ?>
-                                            </a>
-                                        </li>
-                                    <?php endwhile; ?>
+                                    if ($result_jenis && mysqli_num_rows($result_jenis) > 0) {
+                                        while ($row = mysqli_fetch_assoc($result_jenis)) {
+                                            echo '<li><a class="dropdown-item" href="#" data-value="' . htmlspecialchars($row['id_jenis']) . '">' . htmlspecialchars($row['nama_jenis']) . '</a></li>';
+                                        }
+                                    }
+                                    ?>
                                 </ul>
                                 <input type="hidden" name="id_jenis" id="id_jenis" required>
                             </div>
@@ -203,10 +281,10 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
 
-                    <div class="row mt-4">
+                    <div class="row mt-4 text-center">
                         <div class="col-md-12">
                             <label for="preset_bobot" class="form-label">Preset Bobot</label>
-                            <select name="preset_bobot" id="preset_bobot" class="form-control">
+                            <select name="preset_bobot" id="preset_bobot" class="form-control" required>
                                 <option value="">-- Apa yang anda inginkan? --</option>
                                 <?php
                                 $query_preset = "SELECT id_preset, nama_preset FROM preset_bobot WHERE status = 'aktif'";
@@ -231,13 +309,48 @@ if (isset($_POST['submit'])) {
 
         <!-- Card Hasil Pencarian -->
         <div id="resultCard" class="card w-75 mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title text-center mb-0">Hasil Rekomendasi Pencarian</h5>
+                <div>
+                    <a href="saw.php" class="btn btn-sm btn-info me-2">
+                        <i class="bi bi-calculator"></i> Cek Perhitungan
+                    </a>
+                    <form action="export-pdf.php" method="post" target="_blank" style="display:inline;">
+                        <input type="hidden" name="id_jenis" value="<?= htmlspecialchars($_POST['id_jenis'] ?? '') ?>">
+                        <input type="hidden" name="id_ukuran"
+                            value="<?= htmlspecialchars($_POST['id_ukuran'] ?? '') ?>">
+                        <input type="hidden" name="kualitas" value="<?= htmlspecialchars($_POST['kualitas'] ?? '') ?>">
+                        <input type="hidden" name="preset_bobot"
+                            value="<?= htmlspecialchars($_POST['preset_bobot'] ?? '') ?>">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="bi bi-file-earmark-pdf"></i> Ekspor PDF
+                        </button>
+                    </form>
+                </div>
+            </div>
             <div class="card-body">
-                <h5 class="card-title text-center">Hasil Rekomendasi Pencarian</h5>
+                <!-- Keterangan Pencarian (1 Baris, Teks Kecil) -->
+                <div class="row mb-3 justify-content-center text-center">
+                    <div class="col-md-12">
+                        <div class="px-3 py-2 text-muted small">
+                            <strong>Jenis Rotan:</strong>
+                            <?= htmlspecialchars(getNamaJenis($koneksi, $_POST['id_jenis'] ?? '')) ?> |
+                            <strong>Ukuran:</strong>
+                            <?= htmlspecialchars(getNamaUkuran($koneksi, $_POST['id_ukuran'] ?? '')) ?> |
+                            <strong>Kualitas:</strong>
+                            <?= htmlspecialchars($_POST['kualitas'] ?? '-') ?> |
+                            <strong>Preset Bobot:</strong>
+                            <?= htmlspecialchars(getNamaPreset($koneksi, $_POST['preset_bobot'] ?? '')) ?>
+                        </div>
+                    </div>
+                </div>
+
+
                 <div id="searchResults">
                     <?= $searchResults ?>
                 </div>
                 <div class="text-center mt-3">
-                    <button id="backButton" class="btn btn-secondary">Kembali ke Pencarian</button>
+                    <button id="backButton" class="btn btn-sm btn-secondary">Kembali ke Pencarian</button>
                 </div>
             </div>
         </div>
@@ -250,25 +363,31 @@ if (isset($_POST['submit'])) {
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Handle dropdown pilihan Jenis dan Ukuran Rotan
             document.querySelectorAll('.dropdown-item').forEach(item => {
                 item.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const value = this.getAttribute('data-value');
-                    const text = this.textContent.trim();
+                    const value = this.getAttribute('data-value'); // Ambil nilai dari data-value
+                    const text = this.textContent.trim(); // Ambil teks dari item dropdown
 
                     // Tentukan dropdown dan input hidden yang sesuai
                     const dropdown = this.closest('.dropdown');
-                    if (dropdown.querySelector('#dropdownJenisRotan')) {
-                        document.getElementById('id_jenis').value = value;
-                        document.getElementById('dropdownJenisRotan').textContent = text;
-                    }
-                    if (dropdown.querySelector('#dropdownUkuranRotan')) {
-                        document.getElementById('id_ukuran').value = value;
-                        document.getElementById('dropdownUkuranRotan').textContent = text;
+                    if (dropdown) {
+                        const jenisDropdown = dropdown.querySelector('#dropdownJenisRotan');
+                        const ukuranDropdown = dropdown.querySelector('#dropdownUkuranRotan');
+                        const idJenisInput = document.getElementById('id_jenis');
+                        const idUkuranInput = document.getElementById('id_ukuran');
+
+                        if (jenisDropdown && idJenisInput) {
+                            idJenisInput.value = value; // Set nilai hidden input
+                            jenisDropdown.textContent = text; // Set teks dropdown
+                        }
+                        if (ukuranDropdown && idUkuranInput) {
+                            idUkuranInput.value = value; // Set nilai hidden input
+                            ukuranDropdown.textContent = text; // Set teks dropdown
+                        }
                     }
                 });
             });
@@ -277,15 +396,35 @@ if (isset($_POST['submit'])) {
             const backButton = document.getElementById('backButton');
             if (backButton) {
                 backButton.addEventListener('click', function () {
-                    document.getElementById('resultCard').style.display = 'none';
-                    document.getElementById('formCard').style.display = 'block';
+                    const resultCard = document.getElementById('resultCard');
+                    const formCard = document.getElementById('formCard');
+                    if (resultCard && formCard) {
+                        resultCard.style.display = 'none';
+                        formCard.style.display = 'block';
+                    }
                 });
             }
 
             // Cek kondisi PHP apakah ingin langsung scroll ke hasil
             <?php if (isset($showResults) && $showResults): ?>
-                document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+                const resultCard = document.getElementById('resultCard');
+                if (resultCard) {
+                    resultCard.scrollIntoView({ behavior: 'smooth' });
+                }
             <?php endif; ?>
+
+            // Validasi sebelum submit
+            document.getElementById('searchForm').addEventListener('submit', function (e) {
+                const idJenis = document.getElementById('id_jenis').value;
+                const idUkuran = document.getElementById('id_ukuran').value;
+                const kualitas = document.querySelector('[name="kualitas"]').value;
+                const preset = document.getElementById('preset_bobot').value;
+
+                if (!idJenis || !idUkuran || !kualitas || !preset) {
+                    alert('Semua kolom wajib diisi!');
+                    e.preventDefault();
+                }
+            });
         });
     </script>
 
@@ -296,3 +435,33 @@ if (isset($_POST['submit'])) {
 </body>
 
 </html>
+
+<?php
+function getNamaJenis($koneksi, $id)
+{
+    if (!$id)
+        return '-';
+    $q = mysqli_query($koneksi, "SELECT nama_jenis FROM jenis_rotan WHERE id_jenis='" . mysqli_real_escape_string($koneksi, $id) . "' LIMIT 1");
+    if ($r = mysqli_fetch_assoc($q))
+        return $r['nama_jenis'];
+    return '-';
+}
+function getNamaUkuran($koneksi, $id)
+{
+    if (!$id)
+        return '-';
+    $q = mysqli_query($koneksi, "SELECT ukuran FROM ukuran_rotan WHERE id_ukuran='" . mysqli_real_escape_string($koneksi, $id) . "' LIMIT 1");
+    if ($r = mysqli_fetch_assoc($q))
+        return $r['ukuran'];
+    return '-';
+}
+function getNamaPreset($koneksi, $id)
+{
+    if (!$id)
+        return '-';
+    $q = mysqli_query($koneksi, "SELECT nama_preset FROM preset_bobot WHERE id_preset='" . mysqli_real_escape_string($koneksi, $id) . "' LIMIT 1");
+    if ($r = mysqli_fetch_assoc($q))
+        return $r['nama_preset'];
+    return '-';
+}
+?>
