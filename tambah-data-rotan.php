@@ -106,7 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<ul class="dropdown-menu" aria-labelledby="dropdownUkuranRotan"
 							style="max-height: 200px; overflow-y: auto;">
 							<?php
-							$query_ukuran = "SELECT id_ukuran, ukuran FROM ukuran_rotan";
+							$query_ukuran = "
+                SELECT id_ukuran, ukuran 
+                FROM ukuran_rotan
+                ORDER BY CAST(SUBSTRING_INDEX(ukuran, ' ', 1) AS DECIMAL(5,2)) ASC
+            ";
 							$result_ukuran = mysqli_query($koneksi, $query_ukuran);
 							while ($row = mysqli_fetch_assoc($result_ukuran)):
 								?>
@@ -120,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<input type="hidden" name="id_ukuran" id="id_ukuran" required>
 					</div>
 				</div>
+
 			</div>
 
 			<div class="mb-4">

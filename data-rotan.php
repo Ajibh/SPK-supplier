@@ -124,7 +124,7 @@ if (!empty($msg)):
                                     <a class="btn btn-danger btn-sm d-flex align-items-center gap-1"
                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hapus Data"
                                         href="hapus-data-rotan.php?id=<?= $data['id_rotan']; ?>"
-                                        onclick="return confirm('Apakah anda yakin untuk menghapus data ini?')">
+                                        onclick="return confirm('Apakah anda yakin untuk menghapus data rotan ini?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </div>

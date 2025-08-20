@@ -9,7 +9,7 @@ require_once('template/header.php');
 
 <div class="d-sm-flex align-items-center justify-content-between">
     <div class="pagetitle d-flex align-items-center">
-        <h1 class="me-3">Jenis Rotan</h1>
+        <h1 class="me-3">Referensi Jenis Rotan</h1>
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="index.php"><i class="bi bi-house-door"></i></a></li>
@@ -103,11 +103,11 @@ switch ($status):
 endswitch;
 
 if (!empty($msg)):
-?>
-<div class="alert alert-<?= $type ?> alert-dismissible fade show mt-3" role="alert">
-    <?= $msg ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+    ?>
+    <div class="alert alert-<?= $type ?> alert-dismissible fade show mt-3" role="alert">
+        <?= $msg ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 <?php endif; ?>
 
 <!-- Tabel Jenis Rotan -->
@@ -119,8 +119,8 @@ if (!empty($msg)):
                 <thead>
                     <tr align="center">
                         <th width="5%">No</th>
-                        <th width="25%">Nama Jenis</th>
-                        <th width="15%">Aksi</th>
+                        <th>Nama Jenis</th>
+                        <th width="10%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -197,10 +197,6 @@ if (!empty($msg)):
                     <div class="mb-3">
                         <label>Nama Jenis Rotan</label>
                         <input type="text" class="form-control" name="nama_jenis" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Deskripsi</label>
-                        <textarea class="form-control" name="deskripsi" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

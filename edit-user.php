@@ -99,17 +99,48 @@ require_once('template/header.php');
 
 							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Password</label>
-								<input autocomplete="off" type="password" name="password" class="form-control" />
+								<div class="position-relative">
+									<input autocomplete="off" type="password" name="password" id="password" class="form-control"
+										placeholder="Masukan Password">
+									<button type="button" class="btn btn-link p-0 position-absolute"
+										style="top:50%; right:10px; transform:translateY(-50%);"
+										onclick="togglePassword('password','iconPassword')">
+										<i class="bi bi-eye-slash" id="iconPassword"></i>
+									</button>
+								</div>
 							</div>
 
 							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">Ulangi Password</label>
-								<input autocomplete="off" type="password" name="password2" class="form-control" />
+								<div class="position-relative">
+									<input autocomplete="off" type="password" name="password2" id="password2" class="form-control"
+										placeholder="Ulangi Password">
+									<button type="button" class="btn btn-link p-0 position-absolute"
+										style="top:50%; right:10px; transform:translateY(-50%);"
+										onclick="togglePassword('password2','iconPassword2')">
+										<i class="bi bi-eye-slash" id="iconPassword2"></i>
+									</button>
+								</div>
 							</div>
+
+							<script>
+								function togglePassword(inputId, iconId) {
+									const pwd = document.getElementById(inputId);
+									const icon = document.getElementById(iconId);
+									if (pwd.type === 'password') {
+										pwd.type = 'text';
+										icon.classList.replace('bi-eye-slash', 'bi-eye');
+									} else {
+										pwd.type = 'password';
+										icon.classList.replace('bi-eye', 'bi-eye-slash');
+									}
+								}
+							</script>
+				
 
 							<div class="form-group col-md-6 mb-3">
 								<label class="font-weight-bold">E-Mail</label>
-								<input autocomplete="off" type="email" name="email" required value="<?= $d['email']; ?>"
+								<input autocomplete="off" type="email" name="email" value="<?= $d['email']; ?>"
 									class="form-control" />
 							</div>
 

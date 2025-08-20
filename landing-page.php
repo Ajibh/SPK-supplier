@@ -63,22 +63,25 @@ if (isset($_SESSION["id_user"])) {
     <div class="flex-grow-1 d-flex align-items-center py-5">
         <div class="container">
             <div class="row align-items-center">
-                <!-- Gambar -->
-                <div class="col-md-6 mb-4 mb-md-0">
-                    <div class="image-container text-center">
-                        <img src="assets/img/rotan3.jpg" class="img-fluid mx-auto d-block rounded-3 shadow-lg"
-                            alt="Supplier Rotan">
-                    </div>
+                <div class="col-md-6 mb-4 mt-5 mb-md-0">
+                    <img src="assets/img/rotan3.jpg" class="img-fluid shadow-lg"
+                        style="height:400px; object-fit:cover; clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%); border-radius:15px;"
+                        alt="Supplier Rotan">
                 </div>
 
-                <!-- Teks -->
                 <div class="col-md-6">
-                    <h2 class="mb-4">Sistem Pendukung Keputusan Pemilihan Supplier Bahan Baku Rotan di Kabupaten Cirebon
-                    </h2>
-                    <p class="lead mb-4">Bantu perusahaan Anda memilih supplier rotan terbaik dengan cepat, akurat, dan
-                        efisien.</p>
-                    <a href="rekomendasi.php" class="btn btn-custom btn-lg"><i class="bi bi-play"></i> Mulai
-                        Sekarang</a>
+                    <!-- Judul Aplikasi -->
+                    <h1 class="fw-bold mb-3" style="font-size:3rem; letter-spacing:2px; color:#071952 ">SIPEKTRA</h1>
+
+                    <h4 class="text-dark mb-4">Sistem Pendukung Keputusan Pemilihan Supplier Bahan Baku Rotan di
+                        Kabupaten Cirebon</h4>
+
+                    <p class="text-muted mb-4">Bantu perusahaan Anda memilih supplier rotan terbaik dengan cepat,
+                        akurat, dan efisien.</p>
+
+                    <a href="rekomendasi.php" class="btn btn-custom btn-lg shadow-sm ">
+                        <i class="bi bi-play me-2"></i> Mulai Sekarang
+                    </a>
                 </div>
             </div>
         </div>
@@ -87,7 +90,7 @@ if (isset($_SESSION["id_user"])) {
     <!-- Footer -->
     <footer class="text-white text-center py-3 mt-auto" style="background-color:#071952;">
         <div class="container">
-            <p class="mb-0">&copy; 2024 SPK Pemilihan Supplier Rotan</p>
+            <p class="mb-0">&copy; 2025 SPK Pemilihan Supplier Rotan</p>
         </div>
     </footer>
 
@@ -95,6 +98,5 @@ if (isset($_SESSION["id_user"])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 </body>
-
 
 </html>

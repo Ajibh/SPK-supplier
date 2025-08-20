@@ -1,5 +1,6 @@
 <?php
 require_once('includes/konek-db.php');
+require_once('includes/log-pengunjung.php'); // Tambahkan ini
 
 $showResults = false;
 $searchResults = '';
@@ -10,6 +11,15 @@ if (isset($_POST['submit'])) {
     $kualitas = mysqli_real_escape_string($koneksi, $_POST['kualitas']);
     $preset_bobot = mysqli_real_escape_string($koneksi, $_POST['preset_bobot']);
     $showResults = true;
+
+    // Logging pengunjung pencarian rekomendasi
+    logPengunjung(
+        $koneksi,
+        getNamaJenis($koneksi, $id_jenis),
+        getNamaUkuran($koneksi, $id_ukuran),
+        $kualitas,
+        getNamaPreset($koneksi, $preset_bobot)
+    );
 
     // Ambil bobot dari preset yang dipilih
     $query_bobot = "SELECT harga, stok, minimal_pembelian FROM preset_bobot WHERE id_preset = ?";
@@ -24,7 +34,7 @@ if (isset($_POST['submit'])) {
     } else {
         // Query ambil data supplier beserta alamat
         $query = "SELECT supplier.id_supplier, supplier.nama AS nama_supplier, supplier.kontak, supplier.alamat,
-                  jenis_rotan.nama_jenis, ukuran_rotan.ukuran, data_rotan.harga, data_rotan.stok, data_rotan.minimal_pembelian
+                  jenis_rotan.nama_jenis, ukuran_rotan.ukuran, data_rotan.harga, data_rotan.stok, data_rotan.minimal_pembelian, data_rotan.updated_at
                   FROM data_rotan
                   JOIN supplier ON data_rotan.id_supplier = supplier.id_supplier
                   JOIN jenis_rotan ON data_rotan.id_jenis = jenis_rotan.id_jenis
@@ -69,6 +79,7 @@ if (isset($_POST['submit'])) {
                     'supplier' => $row['nama_supplier'],
                     'kontak' => $row['kontak'],
                     'alamat' => $row['alamat'],
+                    'updated_at' => $row['updated_at'], // ubah ke update_at jika field di DB
                     'nilai' => $nilai_saw,
                 ];
             }
@@ -89,7 +100,7 @@ if (isset($_POST['submit'])) {
                             <th>Supplier</th>
                             <th>Alamat</th>
                             <th>Kontak</th>
-                            <th>Nilai</th>
+                            <th>Last-update</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -106,21 +117,14 @@ if (isset($_POST['submit'])) {
                                 <td>
                                     <?php
                                     $telp = preg_replace('/[^0-9]/', '', $row['kontak']);
-                                    if ($telp):
-                                        ?>
-                                        <a href="https://wa.me/<?= $telp ?>" target="_blank"
-                                            class="btn btn-outline-success btn-sm px-2 py-1 d-inline-flex align-items-center"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Chat via WhatsApp">
-                                            <i class="bi bi-whatsapp" style="font-size:1.3em;"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                    <span class="badge bg-success ms-2" style="font-size:1em;">
+                                    ?>
+                                    <span class="badge bg-success" style="font-size:1em;">
                                         <?= htmlspecialchars($row['kontak']); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary" style="font-size:1em;">
-                                        <?= number_format($row['nilai'], 4); ?>
+                                    <span class="badge bg-info" style="font-size:1em;">
+                                        <?= htmlspecialchars(date('d-m-Y H:i', strtotime($row['updated_at']))); ?>
                                     </span>
                                 </td>
                                 </tr>
@@ -152,7 +156,7 @@ if (isset($_POST['submit'])) {
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-    <title>SIPEKTRA | Landing Page</title>
+    <title>SIPEKTRA | Rekomendasi</title>
     <meta content="" name="description" />
     <meta content="" name="keywords" />
 
@@ -255,7 +259,11 @@ if (isset($_POST['submit'])) {
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownUkuranRotan">
                                     <?php
-                                    $query_ukuran = "SELECT id_ukuran, ukuran FROM ukuran_rotan";
+                                    $query_ukuran = "
+                                        SELECT id_ukuran, ukuran 
+                                        FROM ukuran_rotan
+                                        ORDER BY CAST(SUBSTRING_INDEX(ukuran, ' ', 1) AS DECIMAL(5,2)) ASC
+                                    ";
                                     $result_ukuran = mysqli_query($koneksi, $query_ukuran);
                                     while ($row = mysqli_fetch_assoc($result_ukuran)):
                                         ?>
@@ -270,6 +278,7 @@ if (isset($_POST['submit'])) {
                             </div>
                         </div>
 
+
                         <div class="col-md-4">
                             <label for="kualitas" class="form-label">Kualitas Rotan</label>
                             <select name="kualitas" class="form-control" required>
@@ -281,11 +290,11 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
 
-                    <div class="row mt-4 text-center">
-                        <div class="col-md-12">
+                    <div class="row mt-4 text-center justify-content-center">
+                        <div class="col-md-10">
                             <label for="preset_bobot" class="form-label">Preset Bobot</label>
                             <select name="preset_bobot" id="preset_bobot" class="form-control" required>
-                                <option value="">-- Apa yang anda inginkan? --</option>
+                                <option value="">Bagaimana preferensi Anda dalam memilih supplier?</option>
                                 <?php
                                 $query_preset = "SELECT id_preset, nama_preset FROM preset_bobot WHERE status = 'aktif'";
                                 $result_preset = mysqli_query($koneksi, $query_preset);
@@ -312,9 +321,10 @@ if (isset($_POST['submit'])) {
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title text-center mb-0">Hasil Rekomendasi Pencarian</h5>
                 <div>
-                    <a href="saw.php" class="btn btn-sm btn-info me-2">
+                    <button type="button" class="btn btn-sm btn-info me-2" data-bs-toggle="modal"
+                        data-bs-target="#modalSaw">
                         <i class="bi bi-calculator"></i> Cek Perhitungan
-                    </a>
+                    </button>
                     <form action="export-pdf.php" method="post" target="_blank" style="display:inline;">
                         <input type="hidden" name="id_jenis" value="<?= htmlspecialchars($_POST['id_jenis'] ?? '') ?>">
                         <input type="hidden" name="id_ukuran"
@@ -362,6 +372,113 @@ if (isset($_POST['submit'])) {
             <p class="mb-0">&copy; 2025 SPK Pemilihan Supplier Bahan Baku Rotan</p>
         </div>
     </footer>
+
+    <!-- Modal Perhitungan SAW -->
+    <div class="modal fade" id="modalSaw" tabindex="-1" aria-labelledby="modalSawLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow rounded-4">
+                <div class="modal-header text-white rounded-top-4">
+                    <h5 class="modal-title" id="modalSawLabel">
+                        <i class="bi bi-calculator"></i> Hasil Perhitungan SAW
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body bg-light">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover align-middle text-center">
+                            <thead class="table-primary align-middle">
+                                <tr>
+                                    <th rowspan="2" class="align-middle">Peringkat</th>
+                                    <th rowspan="2" class="align-middle">Supplier</th>
+                                    <th colspan="3">Harga</th>
+                                    <th colspan="3">Stok</th>
+                                    <th colspan="3">Min. Pembelian</th>
+                                    <th rowspan="2" class="bg-success text-white">Nilai SAW</th>
+                                </tr>
+                                <tr>
+                                    <th>Nilai</th>
+                                    <th>Normalisasi</th>
+                                    <th>Bobot</th>
+
+                                    <th>Nilai</th>
+                                    <th>Normalisasi</th>
+                                    <th>Bobot</th>
+
+                                    <th>Nilai</th>
+                                    <th>Normalisasi</th>
+                                    <th>Bobot</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-light">
+                                <?php
+                                if (!empty($data)):
+                                    $min = [
+                                        'harga' => min(array_column($data, 'harga')),
+                                        'minimal_pembelian' => min(array_column($data, 'minimal_pembelian')),
+                                    ];
+                                    $max = ['stok' => max(array_column($data, 'stok'))];
+
+                                    // Hitung semua nilai & normalisasi
+                                    foreach ($data as &$row) {
+                                        $harga_norm = $min['harga'] / $row['harga'];
+                                        $stok_norm = $row['stok'] / $max['stok'];
+                                        $min_pembelian_norm = $min['minimal_pembelian'] / $row['minimal_pembelian'];
+
+                                        $row['nilai_saw'] = (
+                                            $harga_norm * $bobot['harga'] +
+                                            $stok_norm * $bobot['stok'] +
+                                            $min_pembelian_norm * $bobot['minimal_pembelian']
+                                        );
+
+                                        $row['harga_norm'] = $harga_norm;
+                                        $row['stok_norm'] = $stok_norm;
+                                        $row['min_pembelian_norm'] = $min_pembelian_norm;
+                                    }
+                                    unset($row);
+
+                                    // Urutkan dari nilai SAW tertinggi ke terendah
+                                    usort($data, function ($a, $b) {
+                                        return $b['nilai_saw'] <=> $a['nilai_saw'];
+                                    });
+
+                                    // Tampilkan data dengan peringkat
+                                    $rank = 1;
+                                    foreach ($data as $row):
+                                        ?>
+                                        <tr>
+                                            <td><?= $rank++ ?></td>
+                                            <td class="text-start"><?= htmlspecialchars($row['nama_supplier']) ?></td>
+
+                                            <td><span class="text-muted">●●●</span></td>
+                                            <td><?= number_format($row['harga_norm'], 4) ?></td>
+                                            <td><span class="badge bg-secondary"><?= $bobot['harga'] ?></span></td>
+
+                                            <td><span class="text-muted">●●●</span></td>
+                                            <td><?= number_format($row['stok_norm'], 4) ?></td>
+                                            <td><span class="badge bg-secondary"><?= $bobot['stok'] ?></span></td>
+
+                                            <td><span class="text-muted">●●●</span></td>
+                                            <td><?= number_format($row['min_pembelian_norm'], 4) ?></td>
+                                            <td><span class="badge bg-secondary"><?= $bobot['minimal_pembelian'] ?></span></td>
+
+                                            <td class="fw-bold text-success bg-light"><?= number_format($row['nilai_saw'], 4) ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-white rounded-bottom-4">
+                    <button type="button" class="btn btn-info" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

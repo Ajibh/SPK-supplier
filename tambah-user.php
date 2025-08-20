@@ -72,7 +72,7 @@ require_once('template/header.php');
 </div>
 
 <?php if (!empty($errors)): ?>
-	<div class="alert alert-info">
+	<div class="alert alert-danger">
 		<?php foreach ($errors as $error): ?>
 			<?php echo $error; ?>
 		<?php endforeach; ?>
@@ -96,13 +96,44 @@ require_once('template/header.php');
 
 				<div class="form-group col-md-6 mb-3">
 					<label class="font-weight-bold">Password</label>
-					<input autocomplete="off" type="password" name="password" required class="form-control" />
+					<div class="password-toggle-wrapper position-relative">
+						<input autocomplete="off" type="password" name="password" id="password" required
+							class="form-control password-field" placeholder="Masukan Password">
+						<button type="button" class="password-toggle-btn btn btn-link p-0 position-absolute"
+							style="top:50%; right:10px; transform:translateY(-50%);"
+							onclick="togglePassword('password','iconPassword')">
+							<i class="bi bi-eye-slash" id="iconPassword"></i>
+						</button>
+					</div>
 				</div>
 
 				<div class="form-group col-md-6 mb-3">
 					<label class="font-weight-bold">Ulangi Password</label>
-					<input autocomplete="off" type="password" name="password2" required class="form-control" />
+					<div class="password-toggle-wrapper position-relative">
+						<input autocomplete="off" type="password" name="password2" id="password2" required
+							class="form-control password-field" placeholder="Ulangi Password">
+						<button type="button" class="password-toggle-btn btn btn-link p-0 position-absolute"
+							style="top:50%; right:10px; transform:translateY(-50%);"
+							onclick="togglePassword('password2','iconPassword2')">
+							<i class="bi bi-eye-slash" id="iconPassword2"></i>
+						</button>
+					</div>
 				</div>
+
+				<script>
+					function togglePassword(inputId, iconId) {
+						const pwd = document.getElementById(inputId);
+						const icon = document.getElementById(iconId);
+						if (pwd.type === 'password') {
+							pwd.type = 'text';
+							icon.classList.replace('bi-eye-slash', 'bi-eye');
+						} else {
+							pwd.type = 'password';
+							icon.classList.replace('bi-eye', 'bi-eye-slash');
+						}
+					}
+				</script>
+
 
 				<div class="form-group col-md-6 mb-3">
 					<label class="font-weight-bold">Email</label>

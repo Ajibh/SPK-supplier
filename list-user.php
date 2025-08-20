@@ -25,18 +25,18 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
 $msg = '';
 switch ($status):
 	case 'sukses-baru':
-		$msg = 'Data berhasil disimpan';
+		$msg = 'Data user berhasil disimpan';
 		break;
 	case 'sukses-hapus':
-		$msg = 'Data berhasil dihapus';
+		$msg = 'Data user berhasil dihapus';
 		break;
 	case 'sukses-edit':
-		$msg = 'Data berhasil diupdate';
+		$msg = 'Data user berhasil diupdate';
 		break;
 endswitch;
 
 if ($msg):
-	echo '<div class="alert alert-info">' . $msg . '</div>';
+	echo '<div class="alert alert-success">' . $msg . '</div>';
 endif;
 ?>
 

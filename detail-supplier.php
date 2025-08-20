@@ -28,6 +28,10 @@ $data_supplier = mysqli_fetch_assoc($supplier);
         <h5 class="card-title">Informasi Supplier</h5>
         <table class="table">
             <tbody>
+                    <tr>
+                    <th style="width: 15%;">id Supplier</th>
+                    <td>: <?php echo htmlspecialchars($data_supplier['id_supplier'] ?? ''); ?></td>
+                </tr>
                 <tr>
                     <th style="width: 15%;">Nama Supplier</th>
                     <td>: <?php echo htmlspecialchars($data_supplier['nama'] ?? ''); ?></td>

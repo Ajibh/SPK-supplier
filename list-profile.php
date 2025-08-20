@@ -89,7 +89,7 @@ endif;
 // Tampilkan alert-nya
 if (!empty($errors)):
 	foreach ($errors as $msg):
-		echo '<div class="alert alert-info">' . htmlspecialchars($msg) . '</div>';
+		echo '<div class="alert alert-success">' . htmlspecialchars($msg) . '</div>';
 	endforeach;
 endif;
 ?>
